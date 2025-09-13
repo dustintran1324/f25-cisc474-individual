@@ -1,0 +1,102 @@
+erDiagram
+    %% Core User Management
+    User {
+        int user_id PK
+        string username
+        string email
+        string password_hash
+        enum role "student, instructor"
+        string first_name
+        string last_name
+        string avatar_url
+        datetime created_at
+    }
+    
+    %% Course System
+    Course {
+        int course_id PK
+        string title
+        text description
+        int instructor_id FK
+        string course_code
+        string semester
+        boolean is_active
+        datetime created_at
+    }
+    
+    Enrollment {
+        int student_id FK
+        int course_id FK
+        datetime enrolled_at
+        enum status "active, completed, dropped"
+    }
+    
+    %% Assignment and Submission System
+    Assignment {
+        int assignment_id PK
+        int course_id FK
+        string title
+        text description
+        text instructions
+        datetime due_date
+        int max_points
+        json submission_types_allowed
+        datetime created_at
+    }
+    
+    Submission {
+        int submission_id PK
+        int assignment_id FK
+        int student_id FK
+        enum submission_type "code, walkthrough, reverse"
+        json content
+        enum status "draft, submitted, graded"
+        datetime submitted_at
+        int attempt_number
+    }
+    
+    Grade {
+        int grade_id PK
+        int submission_id FK
+        int grader_id FK
+        float points_earned
+        float max_points
+        text feedback
+        datetime graded_at
+    }
+    
+    %% Communication System
+    Notification {
+        int notification_id PK
+        int user_id FK
+        enum type "grade_update, new_assignment, message, announcement"
+        string title
+        text message
+        boolean is_read
+        int related_id
+        datetime created_at
+    }
+    
+    Message {
+        int message_id PK
+        int sender_id FK
+        int recipient_id FK
+        int course_id FK
+        string subject
+        text content
+        boolean is_read
+        datetime sent_at
+    }
+    
+    %% Relationships
+    User ||--o{ Course : "instructor teaches"
+    User ||--o{ Enrollment : "student enrolls"
+    Course ||--o{ Enrollment : "has students"
+    Course ||--o{ Assignment : "contains"
+    Assignment ||--o{ Submission : "receives"
+    User ||--o{ Submission : "student submits"
+    Submission ||--|| Grade : "gets graded"
+    User ||--o{ Grade : "instructor grades"
+    User ||--o{ Notification : "receives"
+    User ||--o{ Message : "sends"
+    User ||--o{ Message : "receives"

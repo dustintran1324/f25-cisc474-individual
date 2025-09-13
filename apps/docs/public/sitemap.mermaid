@@ -1,0 +1,75 @@
+flowchart TD
+    A[LMS Root] --> B[Login/Register]
+    A --> C[Home Dashboard]
+    
+    %% Authentication Flow
+    B --> B1[Login Page]
+    B --> B2[Create Account]
+    
+    %% Main Navigation from Home
+    C --> D[Courses]
+    C --> E[Notifications]
+    C --> F[Submissions]
+    C --> G[Profile]
+    
+    %% Home Dashboard Components
+    C --> C1[Progress Crystal Ball]
+    C --> C2[Active Quest Cards]
+    C --> C3[Clickable Notifications]
+    C --> C4[Calendar Widget]
+    
+    %% Courses Section
+    D --> D1[Course Cards View]
+    D --> D2[Individual Course]
+    D2 --> D3[Assignment List]
+    D3 --> D4[Assignment Details]
+    D4 --> D5[Submission Interface]
+    
+    %% Submission Types
+    D5 --> S1[Traditional Code]
+    D5 --> S2[Walkthrough]
+    D5 --> S3[Reverse Programming]
+    
+    %% Notifications
+    E --> E1[Announcements]
+    E --> E2[Messages from Instructors]
+    E --> E3[Grade Updates]
+    E --> E4[Assignment Reminders]
+    
+    %% Submissions Archive
+    F --> F1[Past Submissions]
+    F --> F2[Draft Submissions]
+    F --> F3[Filter by Course]
+    F --> F4[Filter by Type]
+    
+    %% Profile
+    G --> G1[Account Settings]
+    G --> G2[Avatar & Display]
+    G --> G3[Password Change]
+    
+    %% Instructor-Only Pages
+    D --> I1[Instructor Dashboard]
+    I1 --> I2[Course Management]
+    I1 --> I3[Grading Interface]
+    I1 --> I4[Course Analytics]
+    I2 --> I5[Create Assignment]
+    I3 --> I6[Grade Submissions]
+    
+    %% Admin-Only Pages
+    A --> H[Admin Dashboard]
+    H --> H1[User Management]
+    H --> H2[System Courses]
+    H --> H3[System Settings]
+    
+    %% Styling
+    classDef authPages fill:#8b6914,stroke:#ffd700,color:#fff
+    classDef mainPages fill:#2d4a2d,stroke:#90ee90,color:#fff
+    classDef submissionTypes fill:#4a2d4a,stroke:#dda0dd,color:#fff
+    classDef instructorPages fill:#2d2d4a,stroke:#87ceeb,color:#fff
+    classDef adminPages fill:#4a2d2d,stroke:#ff6b6b,color:#fff
+    
+    class B1,B2 authPages
+    class C,D,E,F,G mainPages
+    class S1,S2,S3 submissionTypes
+    class I1,I2,I3,I4,I5,I6 instructorPages
+    class H,H1,H2,H3 adminPages
