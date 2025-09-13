@@ -17,9 +17,9 @@ The mystical LMS stands out with three divination methods for knowledge assessme
 - **Data Model**: [datamodel.mermaid](./datamodel.mermaid) - Entity relationships and database structure (Basic, more will include as the dev process goes on)
 
 ### Visual Design References
-- **Home Dashboard**: [Home_Page.png](./Home_Page.png) - Main dashboard with progress crystal ball and quest cards
-- **Course Catalog**: [Courses.png](./Courses.png) - Tarot card display of available courses
-- **Assignment Interface**: [Coding_Assignment_Page.png](./Coding_Assignment_Page.png) - Submission interface with three mystical methods
+- **Home Dashboard**: ![Home_Page.png](./Home_Page.png) - Main dashboard with progress crystal ball and quest cards
+- **Course Catalog**: ![Courses.png](./Courses.png) - Tarot card display of available courses
+- **Assignment Interface**: ![Coding_Assignment_Page.png](./Coding_Assignment_Page.png) - Submission interface with three mystical methods
 - **More page interfaces coming soon**
 
 ## User Stories
