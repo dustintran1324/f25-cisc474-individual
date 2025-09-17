@@ -19,6 +19,7 @@ export default {
     },
     extend: {
       borderRadius: {
+        'container': '0.75rem',  
         '4xl': '2.5rem',
       },
       fontFamily: {
