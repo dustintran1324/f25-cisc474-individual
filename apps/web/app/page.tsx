@@ -1,10 +1,14 @@
-export const metadata = {
-  title: 'Learning Management System ',
-  description: "CISC474 Class project",
-};
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function Home() {
-    return (
-        <>
-       </>
-    );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/login');
+  }, [router]);
+
+  return null;
 }

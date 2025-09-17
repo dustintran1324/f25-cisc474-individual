@@ -31,6 +31,25 @@ export default {
       },
       colors: {
         white: '#ffffff',
+        'default-gray': '#2e2e2e',
+      },
+      spacing: {
+        'xs': '0.25rem',   // 4px
+        'sm': '0.5rem',    // 8px
+        'md': '0.75rem',   // 12px
+        'lg': '1rem',      // 16px
+        'xl': '1.5rem',    // 24px
+        '2xl': '2rem',     // 32px
+        '3xl': '3rem',     // 48px
+        '4xl': '4rem',     // 64px
+        '5xl': '6rem',     // 96px
+        // Small padding values
+        '0.5': '0.125rem', // 2px
+        '1.5': '0.375rem', // 6px
+        '2.5': '0.625rem', // 10px
+        '3.5': '0.875rem', // 14px
+        '4.5': '1.125rem', // 18px
+        '5.5': '1.375rem', // 22px
       },
     },
   },
