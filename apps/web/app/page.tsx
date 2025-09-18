@@ -1,14 +1,60 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import ProgressTracker from '../components/ProgressTracker/ProgressTracker';
+import Dashboard from '../components/Dashboard/Dashboard';
+import CardsGroup from '../components/CardsGroup/CardsGroup';
+import Calendar from '../components/Calendar/Calendar';
+import { Assignment } from '../components/Card/Card';
 
+// This is the new home page layout with 2-column design
+function HomePage() {
+  const handleAssignmentClick = (assignment: Assignment) => {
+    console.log('Navigate to assignment:', assignment.id);
+    // This will later navigate to the actual assignment page
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-default-gray">
+            Dashboard
+          </h1>
+          <p className="text-default-gray/60 mt-2">
+            Welcome back! Here&apos;s what&apos;s happening with your courses.
+          </p>
+        </div>
+
+        {/* Main 2-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          
+          {/* Left Column */}
+          <div className="space-y-6">
+            {/* Progress Tracker */}
+            <ProgressTracker percentage={78} />
+            
+            {/* Dashboard with Notifications */}
+            <Dashboard />
+          </div>
+
+          {/* Right Column */}
+          <div>
+            <h2 className="text-xl font-semibold text-default-gray mb-6">Recent Assignments</h2>
+            <CardsGroup onAssignmentClick={handleAssignmentClick} />
+          </div>
+        </div>
+
+        {/* Calendar - Full width below both columns */}
+        <div className="mt-8">
+          <Calendar title="Academic Calendar" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main component - no redirect for now, just show the home page
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace('/login');
-  }, [router]);
-
-  return null;
+  return <HomePage />;
 }

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input, InputField } from '../LoginForm/Input';
-import { Button } from '../Button';
+import Image from 'next/image';
+import { Input, InputField } from '../LoginForm/LoginForm';
+import { Button } from '../Button/Button';
+import LMSLogo from '../../app/assets/LMS_Logo.svg';
 
 interface LoginProps {
   onGoogleLogin?: () => void;
@@ -55,32 +57,20 @@ export default function Login({ onGoogleLogin }: LoginProps) {
     <div className="min-h-screen flex items-center justify-center bg-white py-3xl px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-2xl">
         <div className="text-center">
-          <div className="mx-auto h-4xl w-4xl flex items-center justify-center">
-            <svg
-              className="h-3xl w-3xl text-default-gray"
-              viewBox="0 0 80 80"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="40" cy="40" r="35" fill="currentColor" />
-              <circle cx="40" cy="40" r="20" fill="white" />
-              <text
-                x="40"
-                y="47"
-                textAnchor="middle"
-                fontSize="16"
-                fill="currentColor"
-                fontWeight="bold"
-              >
-                LMS
-              </text>
-            </svg>
+          <div className="mx-auto h-24 w-24 flex items-center justify-center mb-6">
+            <Image
+              src={LMSLogo}
+              alt="LMS Logo"
+              width={96}
+              height={96}
+              className="h-full w-full object-contain"
+            />
           </div>
           <h2 className="mt-xl text-3xl font-extrabold text-default-gray">
-            Sign up for your account
+            Sign up Placeholder
           </h2>
           <p className="mt-sm text-sm text-default-gray">
-            Access your learning management system
+            Coding is fun!
           </p>
         </div>
         

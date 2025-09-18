@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export const metadata = {
   title: 'Learning Management System ',
@@ -13,7 +14,7 @@ function Navbar() {
   return (
     <header className="fixed top-0 z-50 w-full bg-white">
       <nav className="flex items-center justify-between px-l py-m max-w-7xl mx-auto">
-        {/* Left: User Profile with Avatar */}
+        {/* User profile */}
         <Link
           href="/profile"
           className="flex items-center gap-s hover:opacity-80 transition-opacity"
@@ -24,7 +25,7 @@ function Navbar() {
           <span className="font-medium text-gray-900 text-base">Welcome, John Doe</span>
         </Link>
 
-        {/* Mobile Hamburger Menu Button */}
+        {/* Mobile Hamburger Menu */}
         <button
           className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
@@ -54,7 +55,7 @@ function Navbar() {
           </svg>
         </button>
 
-        {/* Right: Desktop Navigation Links */}
+        {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-xl">
           <Link 
             href="/" 
@@ -135,6 +136,24 @@ function Navbar() {
 }
 
 export function RootLayout({ children }: { children: React.ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
+  const pathname = usePathname();
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Prevent hydration mismatch by rendering basic layout on server
+  if (!isClient) {
+    return <main className="min-h-screen">{children}</main>;
+  }
+
+  const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/register';
+
+  if (isAuthPage) {
+    return <main className="min-h-screen">{children}</main>;
+  }
+
   return (
     <div>
       <Navbar />
