@@ -32,32 +32,32 @@ export default function NotificationsPage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-[l] py-[2xl]">
-      <div className="mb-[l]">
-        <h1 className="text-3xl font-bold text-gray-900 mb-[s]">Notifications</h1>
+    <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Notifications</h1>
         <p className="text-gray-600">Stay updated with your course activities</p>
       </div>
 
-      <div className="space-y-[s]">
+      <div className="space-y-4">
         {notifications.map((notification) => (
           <div 
             key={notification.id}
-            className={`bg-white border rounded-container p-[m] hover:shadow-sm transition-shadow ${
+            className={`bg-white border rounded-lg p-4 hover:shadow-sm transition-shadow ${
               notification.unread ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
             }`}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-[s] mb-[xs]">
+                <div className="flex items-center gap-3 mb-2">
                   <h3 className="font-semibold text-gray-900">{notification.title}</h3>
                   {notification.unread && (
                     <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
                   )}
                 </div>
-                <p className="text-gray-700 mb-[xs]">{notification.message}</p>
+                <p className="text-gray-700 mb-2">{notification.message}</p>
                 <p className="text-sm text-gray-500">{notification.time}</p>
               </div>
-              <div className="flex gap-[xs]">
+              <div className="flex gap-2">
                 {notification.unread && (
                   <button className="text-sm text-blue-600 hover:text-blue-800">
                     Mark as read
@@ -73,8 +73,8 @@ export default function NotificationsPage() {
       </div>
 
       {notifications.length === 0 && (
-        <div className="text-center py-[2xl]">
-          <div className="text-gray-400 mb-[m]">
+        <div className="text-center py-12">
+          <div className="text-gray-400 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 17h5l-5 5v-5z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 8h6v2H9V8z" />
@@ -82,7 +82,7 @@ export default function NotificationsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-[s]">No notifications</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
           <p className="text-gray-500">You&apos;re all caught up!</p>
         </div>
       )}
