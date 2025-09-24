@@ -12,9 +12,189 @@ generator client {
   output   = "../generated/client"
 }
 
+enum UserRole {
+  STUDENT
+  TA
+  INSTRUCTOR
+  ADMIN
+}
+
+enum SubmissionType {
+  TRADITIONAL_CODE // The Scribe - traditional programming
+  SOLUTION_WALKTHROUGH // The Oracle - explain solution approach
+  REVERSE_PROGRAMMING // The Sage - interpret existing code
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  GRADED
+  RETURNED
+}
+
+enum NotificationType {
+  ASSIGNMENT_DUE
+  GRADE_POSTED
+  COURSE_ANNOUNCEMENT
+  SYSTEM_MESSAGE
+}
+
 model User {
   id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
+  name          String
+  email         String    @unique
   emailVerified DateTime?
+  role          UserRole  @default(STUDENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  enrollments   Enrollment[]
+  instructedCourses Course[] @relation("CourseInstructor")
+  taCourses     CourseTA[] // TA assignments to courses
+  submissions   Submission[]
+  notifications Notification[]
+  feedbackGiven Feedback[] @relation("FeedbackGiver")
+  feedbackReceived Feedback[] @relation("FeedbackReceiver")
+
+  @@map("users")
+}
+
+model Course {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  tarotTheme  String?   // Mystical tarot card theme for the course
+  code        String    @unique // Course code like "CS101"
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Instructor relationship
+  instructorId String
+  instructor   User      @relation("CourseInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
+  
+  // Relationships
+  enrollments  Enrollment[]
+  coursetas   CourseTA[] // TAs assigned to this course
+  assignments  Assignment[]
+  notifications Notification[]
+
+  @@map("courses")
+}
+
+model CourseTA {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@map("course_tas")
+}
+
+model Enrollment {
+  id         String    @id @default(cuid())
+  enrolledAt DateTime  @default(now())
+  isActive   Boolean   @default(true)
+  
+  // Relationships
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+model Assignment {
+  id            String           @id @default(cuid())
+  title         String
+  description   String
+  instructions  String           // Detailed instructions
+  dueDate       DateTime
+  maxPoints     Int              @default(100)
+  isActive      Boolean          @default(true)
+  
+  // Which submission types are allowed for this assignment
+  allowedTypes  SubmissionType[]
+  
+  // For reverse programming assignments - provide the code to analyze
+  providedCode  String?
+  
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  
+  // Relationships
+  courseId      String
+  course        Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions   Submission[]
+
+  @@map("assignments")
+}
+
+model Submission {
+  id              String           @id @default(cuid())
+  type            SubmissionType
+  status          SubmissionStatus @default(DRAFT)
+  
+  // Content based on submission type
+  codeContent     String?          // For TRADITIONAL_CODE
+  walkthroughText String?          // For SOLUTION_WALKTHROUGH  
+  codeExplanation String?          // For REVERSE_PROGRAMMING
+  
+  // Metadata
+  submittedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relationships
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignmentId    String
+  assignment      Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  feedback        Feedback[]
+
+  @@map("submissions")
+}
+
+model Feedback {
+  id          String    @id @default(cuid())
+  points      Int?      // Points earned (null if not graded yet)
+  comments    String?   // Written feedback
+  isPublished Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  graderId     String    // The instructor or TA who gave the feedback
+  grader       User      @relation("FeedbackGiver", fields: [graderId], references: [id])
+  studentId    String    // The student receiving feedback
+  student      User      @relation("FeedbackReceiver", fields: [studentId], references: [id])
+
+  @@map("feedback")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  
+  // Relationships
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String?          // Optional - for course-specific notifications
+  course    Course?          @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@map("notifications")
 }
