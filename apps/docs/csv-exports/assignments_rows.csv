@@ -1,0 +1,24 @@
+id,title,description,instructions,dueDate,maxPoints,isActive,allowedTypes,providedCode,createdAt,updatedAt,courseId
+cmfyiusdc0026ikq0gskn3ngn,Variables & Data Types Divination,Understand the essence of data through variables and types.,"Write a program that demonstrates the use of different data types (integers, strings, booleans, arrays). Show how variables can transform and hold different mystical energies.",2025-10-08 21:54:24.671,75,true,"[""TRADITIONAL_CODE"",""REVERSE_PROGRAMMING""]","# Mystical Data Types Example
+name = ""Seeker""
+level = 1
+has_magic = True
+spells = [""fireball"", ""heal"", ""teleport""]
+print(f""{name} is level {level}"")
+if has_magic:
+    print(f""Known spells: {', '.join(spells)}"")",2025-09-24 21:54:24.672,2025-09-24 21:54:24.672,cmfyiuqsv000mikq0ma3t44bl
+cmfyiusf10028ikq0zfp1cwqn,Sorting Spells Implementation,Master the art of organizing chaos through sorting algorithms.,"Implement at least two different sorting algorithms (e.g., bubble sort, selection sort, or merge sort). Compare their mystical efficiency and explain when each spell is most powerful.",2025-10-15 21:54:24.671,100,true,"[""TRADITIONAL_CODE"",""SOLUTION_WALKTHROUGH""]",,2025-09-24 21:54:24.672,2025-09-24 21:54:24.672,cmfyiuqr5000kikq0z9794slb
+cmfyiusgq002aikq0rgrd54x2,Hello World Ritual,Your first incantation in the realm of programming.,"Create a program that outputs 'Hello, Mystical World!' using any programming language. This is your initiation into the sacred art of code.",2025-10-01 21:54:24.67,50,true,"[""TRADITIONAL_CODE"",""SOLUTION_WALKTHROUGH""]",,2025-09-24 21:54:24.672,2025-09-24 21:54:24.672,cmfyiuqsv000mikq0ma3t44bl
+cmfyiuskv002cikq0imddyth8,Responsive Tarot Card Layout,Create a mystical web layout that adapts to different viewing crystals (devices).,"Design and code a responsive webpage that displays tarot cards in a grid layout. Use CSS Grid/Flexbox and ensure it works on desktop, tablet, and mobile devices.",2025-10-29 21:54:24.671,120,true,"[""TRADITIONAL_CODE"",""SOLUTION_WALKTHROUGH""]",,2025-09-24 21:54:24.672,2025-09-24 21:54:24.672,cmfyiuquj000oikq0buj4haz1
+cmfyiusmj002eikq0zmmvawa4,Binary Search Tree Oracle,Build a tree that holds the wisdom of efficient searching.,"Create a Binary Search Tree implementation with insertion, deletion, and search operations. Your tree will serve as an oracle for quick data retrieval.",2025-10-22 21:54:24.671,150,true,"[""TRADITIONAL_CODE"",""REVERSE_PROGRAMMING"",""SOLUTION_WALKTHROUGH""]","class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def search_tree(root, target):
+    if not root or root.val == target:
+        return root
+    if target < root.val:
+        return search_tree(root.left, target)
+    return search_tree(root.right, target)",2025-09-24 21:54:24.672,2025-09-24 21:54:24.672,cmfyiuqr5000kikq0z9794slb
