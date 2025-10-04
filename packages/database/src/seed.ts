@@ -173,22 +173,25 @@ async function seedDatabase() {
 
     // Assign TAs to courses
     const tas = users.filter(u => u.role === UserRole.TA);
+    if (tas.length < 3 || courses.length < 3) {
+      throw new Error('Not enough TAs or courses for seeding');
+    }
     const courseTA1 = await prisma.courseTA.create({
       data: {
-        userId: tas[0].id, // Crystal Debugger
-        courseId: courses[0].id, // PROG101
+        userId: tas[0]!.id, // Crystal Debugger
+        courseId: courses[0]!.id, // PROG101
       }
     });
     const courseTA2 = await prisma.courseTA.create({
       data: {
-        userId: tas[1].id, // Raven Compiler
-        courseId: courses[1].id, // ALGO201
+        userId: tas[1]!.id, // Raven Compiler
+        courseId: courses[1]!.id, // ALGO201
       }
     });
     const courseTA3 = await prisma.courseTA.create({
       data: {
-        userId: tas[2].id, // Phoenix Parser
-        courseId: courses[2].id, // WEB301
+        userId: tas[2]!.id, // Phoenix Parser
+        courseId: courses[2]!.id, // WEB301
       }
     });
     console.log("🎭 Assigned TAs to courses");
@@ -197,16 +200,22 @@ async function seedDatabase() {
     const students = users.filter(u => u.role === UserRole.STUDENT);
     const enrollments = [];
     for (let i = 0; i < students.length; i++) {
+      const student = students[i];
+      if (!student) continue;
+      
       // Enroll each student in 1-3 courses randomly
       const numCourses = Math.floor(Math.random() * 3) + 1;
       const shuffledCourses = [...courses].sort(() => Math.random() - 0.5);
       
       for (let j = 0; j < numCourses && j < courses.length; j++) {
+        const course = shuffledCourses[j];
+        if (!course) continue;
+        
         enrollments.push(
           prisma.enrollment.create({
             data: {
-              userId: students[i].id,
-              courseId: shuffledCourses[j].id,
+              userId: student.id,
+              courseId: course.id,
             }
           })
         );
@@ -241,11 +250,15 @@ async function seedDatabase() {
     console.log("📝 Created assignments");
 
     // Create sample submissions
+    if (students.length < 3 || assignments.length < 4) {
+      throw new Error('Not enough students or assignments for seeding submissions');
+    }
+    
     const sampleSubmissions = [
       // PROG101 - Hello World submissions
       {
-        userId: students[0].id,
-        assignmentId: assignments[0].id,
+        userId: students[0]!.id,
+        assignmentId: assignments[0]!.id,
         type: SubmissionType.TRADITIONAL_CODE,
         status: SubmissionStatus.GRADED,
         codeContent: `print("Hello, Mystical World!")
@@ -254,8 +267,8 @@ print("I am ready to learn the ancient arts!")`,
         submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
       },
       {
-        userId: students[1].id,
-        assignmentId: assignments[0].id,
+        userId: students[1]!.id,
+        assignmentId: assignments[0]!.id,
         type: SubmissionType.SOLUTION_WALKTHROUGH,
         status: SubmissionStatus.SUBMITTED,
         walkthroughText: "To complete the Hello World ritual, I would use the sacred print() function in Python. This function channels our message to the mystical output realm, allowing us to communicate with the digital spirits. The message 'Hello, Mystical World!' serves as our first incantation, establishing our presence in the programming dimension.",
@@ -264,8 +277,8 @@ print("I am ready to learn the ancient arts!")`,
       
       // ALGO201 - Binary Search Tree submissions
       {
-        userId: students[2].id,
-        assignmentId: assignments[3].id,
+        userId: students[2]!.id,
+        assignmentId: assignments[3]!.id,
         type: SubmissionType.REVERSE_PROGRAMMING,
         status: SubmissionStatus.GRADED,
         codeExplanation: "This mystical code creates a Binary Search Tree Oracle. The TreeNode class represents each node in our sacred tree, holding a value and connections to left and right children. The search_tree function is a powerful divination spell that finds specific values by comparing the target with the current node's value. If the target is smaller, it searches the left subtree; if larger, it searches the right subtree. This creates an efficient O(log n) search through the tree's mystical structure.",
@@ -310,8 +323,8 @@ print("I am ready to learn the ancient arts!")`,
             submissionId: submission.id,
             graderId: graderId!,
             studentId: submission.userId,
-            points: feedbackData[index % 2].points,
-            comments: feedbackData[index % 2].comments,
+            points: feedbackData[index % 2]!.points,
+            comments: feedbackData[index % 2]!.comments,
             isPublished: true,
           }
         });
@@ -329,7 +342,7 @@ print("I am ready to learn the ancient arts!")`,
             type: NotificationType.ASSIGNMENT_DUE,
             title: "Assignment Due Soon",
             message: "Your Variables & Data Types Divination assignment is due in 3 days. Channel your mystical energies!",
-            courseId: courses[0].id,
+            courseId: courses[0]!.id,
           }
         }),
         prisma.notification.create({
@@ -338,7 +351,7 @@ print("I am ready to learn the ancient arts!")`,
             type: NotificationType.GRADE_POSTED,
             title: "Grade Posted",
             message: "Your Hello World Ritual has been graded by the Oracle. Excellent work, seeker!",
-            courseId: courses[0].id,
+            courseId: courses[0]!.id,
             isRead: Math.random() > 0.5,
           }
         })
