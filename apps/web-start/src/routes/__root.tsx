@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-import type { ReactNode } from 'react';
 import {
   Outlet,
   createRootRouteWithContext,
@@ -11,6 +10,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 import TanStackQueryDevtools from '../integrations/devtools';
 import appCss from '../styles.css?url';
 import type { QueryClient } from '@tanstack/react-query';
+import { Navbar } from '../components/Navbar/Navbar';
 
 export interface MyRouterContext {
   queryClient: QueryClient;
@@ -27,7 +27,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Learning Management System',
       },
     ],
     links: [
@@ -35,19 +35,36 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         rel: 'stylesheet',
         href: appCss,
       },
+      {
+        rel: 'icon',
+        type: 'image/svg+xml',
+        href: '/knight-icon.svg',
+      },
     ],
   }),
 
+  component: RootLayout,
   shellComponent: RootDocument,
 });
 
+function RootLayout() {
+  return (
+    <div>
+      <Navbar />
+      <main className="pt-20">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full bg-white text-base antialiased">
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="flex min-h-full flex-col">
         {children}
         <TanStackDevtools
           config={{
