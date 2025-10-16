@@ -17,6 +17,10 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <p className="text-center text-sm text-gray-600 mb-6">
+          Pages with real backend data: <strong>Courses</strong> and <strong>Notifications</strong>
+        </p>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
           <h2 className="text-xl font-semibold text-default-gray text-center">Overall Progress</h2>
           <h2 className="text-xl font-semibold text-default-gray text-center">Upcoming Assignments</h2>

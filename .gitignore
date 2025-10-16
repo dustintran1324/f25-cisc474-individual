@@ -66,6 +66,14 @@ pnpm-debug.log*
 .settings/
 *.sublime-workspace
 
+# Ignore all README files except root README.md
+**/README.md
+!README.md
+
+# Ignore documentation files
+BACKEND_FRONTEND_INTEGRATION_TODO.md
+DEPLOYMENT_GUIDE.md
+TANSTACK_MIGRATION_GUIDE.md
 
 server/dist
 public/dist
