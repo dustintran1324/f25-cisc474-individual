@@ -3,5 +3,8 @@
   "name": "lms-dustin",
   "compatibility_date": "2025-10-14",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "@tanstack/react-start/server-entry",
+  "vars": {
+    "VITE_BACKEND_URL": "https://f25-cisc474-individual-isvm.onrender.com"
+  }
 }
