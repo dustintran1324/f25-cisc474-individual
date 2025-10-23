@@ -23,6 +23,23 @@ export interface Notification {
   courseId: string;
 }
 
+export interface CourseCreateDto {
+  title: string;
+  description?: string;
+  tarotTheme?: string;
+  code: string;
+  instructorId: string;
+  isActive?: boolean;
+}
+
+export interface CourseUpdateDto {
+  title?: string;
+  description?: string;
+  tarotTheme?: string;
+  code?: string;
+  isActive?: boolean;
+}
+
 export const api = {
   courses: {
     getAll: async (): Promise<Course[]> => {
@@ -36,6 +53,41 @@ export const api = {
       const response = await fetch(`${BACKEND_URL}/courses/${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch course');
+      }
+      return response.json();
+    },
+    create: async (data: CourseCreateDto): Promise<Course> => {
+      const response = await fetch(`${BACKEND_URL}/courses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create course');
+      }
+      return response.json();
+    },
+    update: async (id: string, data: CourseUpdateDto): Promise<Course> => {
+      const response = await fetch(`${BACKEND_URL}/courses/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update course');
+      }
+      return response.json();
+    },
+    delete: async (id: string): Promise<Course> => {
+      const response = await fetch(`${BACKEND_URL}/courses/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete course');
       }
       return response.json();
     },
