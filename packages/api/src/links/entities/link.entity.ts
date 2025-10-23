@@ -4,7 +4,6 @@ export class Link {
   title: string;
   description: string;
 
-  // Don't really want this, delete this whole file. Just left it in as an example.
   constructor() {
     this.id = 0;
     this.url = '';

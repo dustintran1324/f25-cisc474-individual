@@ -70,10 +70,9 @@ pnpm-debug.log*
 **/README.md
 !README.md
 
-# Ignore documentation files
-BACKEND_FRONTEND_INTEGRATION_TODO.md
-DEPLOYMENT_GUIDE.md
-TANSTACK_MIGRATION_GUIDE.md
+# Ignore all markdown files except root README.md
+*.md
+!README.md
 
 server/dist
 public/dist

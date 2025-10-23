@@ -41,10 +41,24 @@ enum NotificationType {
 
 model User {
   id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  emailVerified DateTime?
+
+  // Auth0 fields
+  auth0Id       String?   @unique  // Auth0 user ID (e.g., "google-oauth2|123456")
+
+  // Profile fields
+  name          String                    // Full name from Auth0/Google
+  firstName     String?                   // Parsed from name or user input
+  lastName      String?                   // Parsed from name or user input
+  email         String    @unique         // Email from Auth0/Google
+  emailVerified DateTime?                 // Email verification timestamp
+  picture       String?                   // Profile picture URL from Auth0/Google
+  bio           String?   @db.Text        // User bio/description (optional)
+  phoneNumber   String?                   // Optional phone number
+
+  // System fields
   role          UserRole  @default(STUDENT)
+  isActive      Boolean   @default(true)  // For account suspension/soft delete
+  lastLoginAt   DateTime?                 // Track last login timestamp
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -56,6 +70,7 @@ model User {
   notifications Notification[]
   feedbackGiven Feedback[] @relation("FeedbackGiver")
   feedbackReceived Feedback[] @relation("FeedbackReceiver")
+  announcementsAuthored Announcement[] @relation("AnnouncementAuthor")
 
   @@map("users")
 }
@@ -64,21 +79,23 @@ model Course {
   id          String    @id @default(cuid())
   title       String
   description String?
+  syllabus    String?   @db.Text // Course syllabus content
   tarotTheme  String?   // Mystical tarot card theme for the course
   code        String    @unique // Course code like "CS101"
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
+
   // Instructor relationship
   instructorId String
   instructor   User      @relation("CourseInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
-  
+
   // Relationships
   enrollments  Enrollment[]
   coursetas   CourseTA[] // TAs assigned to this course
   assignments  Assignment[]
   notifications Notification[]
+  announcements Announcement[]
 
   @@map("courses")
 }
@@ -115,25 +132,26 @@ model Enrollment {
 model Assignment {
   id            String           @id @default(cuid())
   title         String
-  description   String
-  instructions  String           // Detailed instructions
+  description   String           @db.Text
+  instructions  String           @db.Text // Detailed instructions
   dueDate       DateTime
   maxPoints     Int              @default(100)
   isActive      Boolean          @default(true)
-  
+
   // Which submission types are allowed for this assignment
   allowedTypes  SubmissionType[]
-  
+
   // For reverse programming assignments - provide the code to analyze
-  providedCode  String?
-  
+  providedCode  String?          @db.Text
+
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  
+
   // Relationships
   courseId      String
   course        Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   submissions   Submission[]
+  notifications Notification[]
 
   @@map("assignments")
 }
@@ -142,35 +160,37 @@ model Submission {
   id              String           @id @default(cuid())
   type            SubmissionType
   status          SubmissionStatus @default(DRAFT)
-  
+
   // Content based on submission type
-  codeContent     String?          // For TRADITIONAL_CODE
-  walkthroughText String?          // For SOLUTION_WALKTHROUGH  
-  codeExplanation String?          // For REVERSE_PROGRAMMING
-  
+  codeContent     String?          @db.Text // For TRADITIONAL_CODE
+  walkthroughText String?          @db.Text // For SOLUTION_WALKTHROUGH
+  codeExplanation String?          @db.Text // For REVERSE_PROGRAMMING
+
   // Metadata
   submittedAt     DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  
+
   // Relationships
   userId          String
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   assignmentId    String
   assignment      Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   feedback        Feedback[]
+  notifications   Notification[]
 
+  @@unique([userId, assignmentId])
   @@map("submissions")
 }
 
 model Feedback {
   id          String    @id @default(cuid())
   points      Int?      // Points earned (null if not graded yet)
-  comments    String?   // Written feedback
+  comments    String?   @db.Text // Written feedback
   isPublished Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
+
   // Relationships
   submissionId String
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
@@ -186,15 +206,35 @@ model Notification {
   id        String           @id @default(cuid())
   type      NotificationType
   title     String
-  message   String
+  message   String           @db.Text
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
-  
+
   // Relationships
   userId    String
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseId  String?          // Optional - for course-specific notifications
   course    Course?          @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  assignmentId String?       // For assignment-related notifications
+  assignment   Assignment?   @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  submissionId String?       // For grade posted notifications
+  submission   Submission?   @relation(fields: [submissionId], references: [id], onDelete: SetNull)
 
   @@map("notifications")
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+
+  @@map("announcements")
 }
