@@ -1,5 +1,6 @@
 'use client';
 
+import { Link } from '@tanstack/react-router';
 import { useCourses } from '../../hooks/useCourses';
 import { COLORS, OPACITY } from '../../constants/theme';
 
@@ -37,9 +38,11 @@ export function CoursesList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {courses.map((course) => (
-        <div
+        <Link
           key={course.id}
-          className="bg-white border-4 border-black rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow cursor-pointer"
+          to="/courses/$courseId"
+          params={{ courseId: course.id }}
+          className="bg-white border-4 border-black rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow block"
         >
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
@@ -61,13 +64,13 @@ export function CoursesList() {
             </p>
           </div>
 
-          <button
-            className="w-full border-2 border-black py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+          <div
+            className="w-full border-2 border-black py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors text-center"
             style={{ color: COLORS.primary }}
           >
             View Course
-          </button>
-        </div>
+          </div>
+        </Link>
       ))}
     </div>
   );

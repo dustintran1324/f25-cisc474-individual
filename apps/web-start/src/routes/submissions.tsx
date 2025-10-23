@@ -1,75 +1,95 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../constants/theme';
+import { api } from '../lib/api';
 
 export const Route = createFileRoute('/submissions')({
   component: SubmissionsPage,
 });
 
+const MOCK_USER_ID = 'cm2qhg1a00001edjx1234mock';
+
 function SubmissionsPage() {
-  const submissions = [
-    {
-      id: 1,
-      title: "React Component Design",
-      course: "CISC474",
-      submittedDate: "Jan 14, 2024",
-      status: "graded",
-      score: "95/100"
-    },
-    {
-      id: 2,
-      title: "Database Schema Design",
-      course: "CISC437",
-      submittedDate: "Jan 16, 2024",
-      status: "pending",
-      score: "-"
-    },
-    {
-      id: 3,
-      title: "Algorithm Analysis Report",
-      course: "CISC320",
-      submittedDate: "Jan 18, 2024",
-      status: "graded",
-      score: "88/100"
-    }
-  ];
+  const { data: submissions = [], isLoading } = useQuery({
+    queryKey: ['submissions', MOCK_USER_ID],
+    queryFn: () => api.submissions.getAll(MOCK_USER_ID),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p style={{ color: COLORS.primary }}>Loading submissions...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <PageHeader title="Submissions" subtitle="View and manage your assignment submissions" />
+        <PageHeader
+          title="My Submission History"
+          subtitle="View all your past assignment submissions"
+        />
 
         <div className="space-y-4">
-          {submissions.map((submission) => (
-            <div
-              key={submission.id}
-              className="bg-white border-4 border-black rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold" style={{ color: COLORS.primary }}>
-                      {submission.title}
-                    </h3>
-                    <span className="text-sm font-medium px-2 py-1 bg-gray-100 rounded" style={{ color: COLORS.primary }}>
-                      {submission.course}
-                    </span>
+          {submissions.length === 0 ? (
+            <div className="text-center py-12 border-4 border-black rounded-lg">
+              <p style={{ color: COLORS.primary, opacity: OPACITY.medium }}>
+                No submissions yet. Complete assignments to see them here!
+              </p>
+            </div>
+          ) : (
+            submissions.map((submission) => (
+              <div
+                key={submission.id}
+                className="bg-white border-4 border-black rounded-lg shadow-sm p-6 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-medium px-3 py-1 bg-black text-white rounded">
+                        {submission.type.replace(/_/g, ' ')}
+                      </span>
+                      <span
+                        className="text-sm font-medium px-2 py-1 rounded"
+                        style={{
+                          backgroundColor:
+                            submission.status === 'GRADED'
+                              ? '#22c55e'
+                              : submission.status === 'SUBMITTED'
+                                ? '#eab308'
+                                : '#94a3b8',
+                          color: 'white',
+                        }}
+                      >
+                        {submission.status}
+                      </span>
+                    </div>
+                    <div className="mt-3 p-3 bg-gray-50 rounded border-2 border-gray-200">
+                      <pre
+                        className="text-sm font-mono whitespace-pre-wrap break-words"
+                        style={{ color: COLORS.primary }}
+                      >
+                        {submission.codeContent ||
+                          submission.walkthroughText ||
+                          submission.codeExplanation ||
+                          'No content'}
+                      </pre>
+                    </div>
+                    <p
+                      className="text-xs mt-2"
+                      style={{ color: COLORS.primary, opacity: OPACITY.medium }}
+                    >
+                      Created: {new Date(submission.createdAt).toLocaleDateString()}
+                      {submission.submittedAt &&
+                        ` | Submitted: ${new Date(submission.submittedAt).toLocaleDateString()}`}
+                    </p>
                   </div>
-                  <p className="text-sm" style={{ color: COLORS.primary, opacity: OPACITY.medium }}>
-                    Submitted: {submission.submittedDate}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm mb-1" style={{ color: COLORS.primary, opacity: OPACITY.medium }}>
-                    {submission.status}
-                  </p>
-                  <p className="text-xl font-bold" style={{ color: COLORS.primary }}>
-                    {submission.score}
-                  </p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
