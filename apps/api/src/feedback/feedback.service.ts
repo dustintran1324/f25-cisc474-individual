@@ -1,19 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-
-export interface FeedbackCreateDto {
-  points?: number;
-  comments?: string;
-  submissionId: string;
-  graderId: string;
-  studentId: string;
-}
-
-export interface FeedbackUpdateDto {
-  points?: number;
-  comments?: string;
-  isPublished?: boolean;
-}
+import { FeedbackCreateIn, FeedbackUpdateIn } from '@repo/api';
 
 @Injectable()
 export class FeedbackService {
@@ -88,7 +75,7 @@ export class FeedbackService {
     });
   }
 
-  async create(createDto: FeedbackCreateDto) {
+  async create(createDto: FeedbackCreateIn) {
     return this.prisma.feedback.create({
       data: createDto,
       include: {
@@ -110,7 +97,7 @@ export class FeedbackService {
     });
   }
 
-  async update(id: string, updateDto: FeedbackUpdateDto) {
+  async update(id: string, updateDto: FeedbackUpdateIn) {
     return this.prisma.feedback.update({
       where: { id },
       data: updateDto,

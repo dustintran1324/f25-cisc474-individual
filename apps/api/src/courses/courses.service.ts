@@ -1,22 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-
-export interface CourseCreateDto {
-  title: string;
-  description?: string;
-  tarotTheme?: string;
-  code: string;
-  instructorId: string;
-  isActive?: boolean;
-}
-
-export interface CourseUpdateDto {
-  title?: string;
-  description?: string;
-  tarotTheme?: string;
-  code?: string;
-  isActive?: boolean;
-}
+import { CourseCreateIn, CourseUpdateIn } from '@repo/api';
 
 @Injectable()
 export class CoursesService {
@@ -32,13 +16,13 @@ export class CoursesService {
     });
   }
 
-  async create(createCourseDto: CourseCreateDto) {
+  async create(createCourseDto: CourseCreateIn) {
     return this.prisma.course.create({
       data: createCourseDto,
     });
   }
 
-  async update(id: string, updateCourseDto: CourseUpdateDto) {
+  async update(id: string, updateCourseDto: CourseUpdateIn) {
     return this.prisma.course.update({
       where: { id },
       data: updateCourseDto,

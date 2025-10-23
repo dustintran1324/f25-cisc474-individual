@@ -1,23 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { SubmissionType, SubmissionStatus } from '@repo/database';
-
-export interface SubmissionCreateDto {
-  type: SubmissionType;
-  codeContent?: string;
-  walkthroughText?: string;
-  codeExplanation?: string;
-  userId: string;
-  assignmentId: string;
-}
-
-export interface SubmissionUpdateDto {
-  type?: SubmissionType;
-  codeContent?: string;
-  walkthroughText?: string;
-  codeExplanation?: string;
-  status?: SubmissionStatus;
-}
+import { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
 
 @Injectable()
 export class SubmissionsService {
@@ -163,7 +146,7 @@ export class SubmissionsService {
     });
   }
 
-  async create(createDto: SubmissionCreateDto) {
+  async create(createDto: SubmissionCreateIn) {
     return this.prisma.submission.create({
       data: createDto,
       include: {
@@ -179,7 +162,7 @@ export class SubmissionsService {
     });
   }
 
-  async update(id: string, updateDto: SubmissionUpdateDto) {
+  async update(id: string, updateDto: SubmissionUpdateIn) {
     return this.prisma.submission.update({
       where: { id },
       data: updateDto,

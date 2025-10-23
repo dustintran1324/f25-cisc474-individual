@@ -1,3 +1,13 @@
+
+
+
+
+
+
+
+
+
+
 import {
   Controller,
   Get,
@@ -8,11 +18,8 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
-import {
-  SubmissionsService,
-  SubmissionCreateDto,
-  SubmissionUpdateDto,
-} from './submissions.service';
+import { SubmissionsService } from './submissions.service';
+import { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
 
 @Controller('submissions')
 export class SubmissionsController {
@@ -44,12 +51,12 @@ export class SubmissionsController {
   }
 
   @Post()
-  create(@Body() createDto: SubmissionCreateDto) {
+  create(@Body() createDto: SubmissionCreateIn) {
     return this.submissionsService.create(createDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDto: SubmissionUpdateDto) {
+  update(@Param('id') id: string, @Body() updateDto: SubmissionUpdateIn) {
     return this.submissionsService.update(id, updateDto);
   }
 

@@ -1,29 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { SubmissionType } from '@repo/database';
-
-export interface AssignmentCreateDto {
-  title: string;
-  description: string;
-  instructions: string;
-  dueDate: string; // ISO date string
-  maxPoints?: number;
-  allowedTypes: SubmissionType[];
-  providedCode?: string;
-  courseId: string;
-  isActive?: boolean;
-}
-
-export interface AssignmentUpdateDto {
-  title?: string;
-  description?: string;
-  instructions?: string;
-  dueDate?: string; // ISO date string
-  maxPoints?: number;
-  allowedTypes?: SubmissionType[];
-  providedCode?: string;
-  isActive?: boolean;
-}
+import { AssignmentCreateIn, AssignmentUpdateIn } from '@repo/api';
 
 @Injectable()
 export class AssignmentsService {
@@ -70,11 +47,11 @@ export class AssignmentsService {
     });
   }
 
-  async create(createDto: AssignmentCreateDto) {
+  async create(createDto: AssignmentCreateIn) {
     return this.prisma.assignment.create({
       data: {
         ...createDto,
-        dueDate: new Date(createDto.dueDate),
+        dueDate: new Date(createDto.dueDate as string),
       },
       include: {
         course: {
@@ -88,12 +65,12 @@ export class AssignmentsService {
     });
   }
 
-  async update(id: string, updateDto: AssignmentUpdateDto) {
+  async update(id: string, updateDto: AssignmentUpdateIn) {
     return this.prisma.assignment.update({
       where: { id },
       data: {
         ...updateDto,
-        dueDate: updateDto.dueDate ? new Date(updateDto.dueDate) : undefined,
+        dueDate: updateDto.dueDate ? new Date(updateDto.dueDate as string) : undefined,
       },
       include: {
         course: {

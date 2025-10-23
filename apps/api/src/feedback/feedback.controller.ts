@@ -8,11 +8,8 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
-import {
-  FeedbackService,
-  FeedbackCreateDto,
-  FeedbackUpdateDto,
-} from './feedback.service';
+import { FeedbackService } from './feedback.service';
+import { FeedbackCreateIn, FeedbackUpdateIn } from '@repo/api';
 
 @Controller('feedback')
 export class FeedbackController {
@@ -32,12 +29,12 @@ export class FeedbackController {
   }
 
   @Post()
-  create(@Body() createDto: FeedbackCreateDto) {
+  create(@Body() createDto: FeedbackCreateIn) {
     return this.feedbackService.create(createDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDto: FeedbackUpdateDto) {
+  update(@Param('id') id: string, @Body() updateDto: FeedbackUpdateIn) {
     return this.feedbackService.update(id, updateDto);
   }
 

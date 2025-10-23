@@ -8,11 +8,8 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
-import {
-  AssignmentsService,
-  AssignmentCreateDto,
-  AssignmentUpdateDto,
-} from './assignments.service';
+import { AssignmentsService } from './assignments.service';
+import { AssignmentCreateIn, AssignmentUpdateIn } from '@repo/api';
 
 @Controller('assignments')
 export class AssignmentsController {
@@ -32,12 +29,12 @@ export class AssignmentsController {
   }
 
   @Post()
-  create(@Body() createDto: AssignmentCreateDto) {
+  create(@Body() createDto: AssignmentCreateIn) {
     return this.assignmentsService.create(createDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDto: AssignmentUpdateDto) {
+  update(@Param('id') id: string, @Body() updateDto: AssignmentUpdateIn) {
     return this.assignmentsService.update(id, updateDto);
   }
 
