@@ -1,0 +1,40 @@
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { passportJwtSecret } from 'jwks-rsa';
+
+export interface JwtUser {
+  sub: string; // Auth0 user ID
+  email: string;
+  name: string;
+  picture?: string;
+  email_verified?: boolean;
+}
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      secretOrKeyProvider: passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `${process.env.AUTH0_ISSUER_URL}.well-known/jwks.json`,
+      }),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      audience: process.env.AUTH0_AUDIENCE,
+      issuer: process.env.AUTH0_ISSUER_URL,
+      algorithms: ['RS256'],
+    });
+  }
+
+  validate(payload: any): JwtUser {
+    return {
+      sub: payload.sub,
+      email: payload.email || payload['https://myapp.com/email'],
+      name: payload.name || payload['https://myapp.com/name'],
+      picture: payload.picture || payload['https://myapp.com/picture'],
+      email_verified: payload.email_verified,
+    };
+  }
+}

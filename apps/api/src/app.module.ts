@@ -12,6 +12,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AppController } from './app.controller';
     SubmissionsModule,
     FeedbackModule,
     NotificationsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
