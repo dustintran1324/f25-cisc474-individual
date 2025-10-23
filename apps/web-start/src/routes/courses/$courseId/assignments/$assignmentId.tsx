@@ -1,22 +1,31 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '../../../../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../../../../constants/theme';
 import { api } from '../../../../lib/api';
-import type { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
+import type { SubmissionCreateIn, SubmissionUpdateIn, SubmissionOut } from '@repo/api';
 
 export const Route = createFileRoute('/courses/$courseId/assignments/$assignmentId')({
   component: AssignmentPage,
 });
 
-const MOCK_USER_ID = 'cm2qhg1a00001edjx1234mock';
-
 function AssignmentPage() {
-  const { courseId, assignmentId } = Route.useParams();
+  const { assignmentId } = Route.useParams();
   const queryClient = useQueryClient();
-  const [submissionType, setSubmissionType] = useState<'TRADITIONAL_CODE' | 'SOLUTION_WALKTHROUGH' | 'REVERSE_PROGRAMMING'>('TRADITIONAL_CODE');
   const [content, setContent] = useState('');
+
+  // For MVP, we'll use the first student from the users list
+  // In production, this would come from authentication
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/users`);
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const users = await response.json();
+      return users.find((u: any) => u.role === 'STUDENT') || users[0];
+    },
+  });
 
   const { data: assignment, isLoading: assignmentLoading } = useQuery({
     queryKey: ['assignment', assignmentId],
@@ -24,17 +33,32 @@ function AssignmentPage() {
   });
 
   const { data: existingSubmission } = useQuery({
-    queryKey: ['submission', MOCK_USER_ID, assignmentId],
+    queryKey: ['submission', currentUser?.id, assignmentId],
     queryFn: async () => {
-      const submissions = await api.submissions.getAll(MOCK_USER_ID, assignmentId);
-      return submissions[0] || null;
+      if (!currentUser) return null;
+      // When both userId and assignmentId are provided, backend returns a single submission (not an array)
+      const submission = await api.submissions.getAll(currentUser.id, assignmentId);
+      return submission as SubmissionOut | null;
     },
+    enabled: !!currentUser,
   });
+
+  // Populate content when existing submission loads
+  useEffect(() => {
+    if (existingSubmission) {
+      const submissionContent =
+        existingSubmission.codeContent ||
+        existingSubmission.walkthroughText ||
+        existingSubmission.codeExplanation ||
+        '';
+      setContent(submissionContent);
+    }
+  }, [existingSubmission]);
 
   const createMutation = useMutation({
     mutationFn: (data: SubmissionCreateIn) => api.submissions.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['submission', MOCK_USER_ID, assignmentId] });
+      queryClient.invalidateQueries({ queryKey: ['submission', currentUser?.id, assignmentId] });
       queryClient.invalidateQueries({ queryKey: ['submissions'] });
       setContent('');
       alert('Submission created successfully!');
@@ -45,7 +69,7 @@ function AssignmentPage() {
     mutationFn: ({ id, data }: { id: string; data: SubmissionUpdateIn }) =>
       api.submissions.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['submission', MOCK_USER_ID, assignmentId] });
+      queryClient.invalidateQueries({ queryKey: ['submission', currentUser?.id, assignmentId] });
       queryClient.invalidateQueries({ queryKey: ['submissions'] });
       alert('Submission updated successfully!');
     },
@@ -54,7 +78,7 @@ function AssignmentPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.submissions.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['submission', MOCK_USER_ID, assignmentId] });
+      queryClient.invalidateQueries({ queryKey: ['submission', currentUser?.id, assignmentId] });
       queryClient.invalidateQueries({ queryKey: ['submissions'] });
       setContent('');
       alert('Submission deleted successfully!');
@@ -64,9 +88,13 @@ function AssignmentPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!assignment || !assignment.allowedTypes[0] || !currentUser) return;
+
+    // Use the first allowed type from the assignment (instructor sets this)
+    const submissionType = assignment.allowedTypes[0];
+
     if (existingSubmission) {
       const updateData: SubmissionUpdateIn = {
-        type: submissionType,
         codeContent: submissionType === 'TRADITIONAL_CODE' ? content : undefined,
         walkthroughText: submissionType === 'SOLUTION_WALKTHROUGH' ? content : undefined,
         codeExplanation: submissionType === 'REVERSE_PROGRAMMING' ? content : undefined,
@@ -75,7 +103,7 @@ function AssignmentPage() {
     } else {
       const createData: SubmissionCreateIn = {
         type: submissionType,
-        userId: MOCK_USER_ID,
+        userId: currentUser.id,
         assignmentId,
         codeContent: submissionType === 'TRADITIONAL_CODE' ? content : undefined,
         walkthroughText: submissionType === 'SOLUTION_WALKTHROUGH' ? content : undefined,
@@ -91,10 +119,10 @@ function AssignmentPage() {
     }
   };
 
-  if (assignmentLoading) {
+  if (assignmentLoading || !currentUser) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <p style={{ color: COLORS.primary }}>Loading assignment...</p>
+        <p style={{ color: COLORS.primary }}>Loading...</p>
       </div>
     );
   }
@@ -106,6 +134,8 @@ function AssignmentPage() {
       </div>
     );
   }
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="min-h-screen bg-white">
@@ -146,18 +176,14 @@ function AssignmentPage() {
               <label className="block text-sm font-medium mb-2" style={{ color: COLORS.primary }}>
                 Submission Type
               </label>
-              <select
-                value={submissionType}
-                onChange={(e) => setSubmissionType(e.target.value as typeof submissionType)}
-                className="w-full px-3 py-2 border-2 border-black rounded"
-                style={{ color: COLORS.primary }}
-              >
-                {assignment.allowedTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type.replace(/_/g, ' ')}
-                  </option>
-                ))}
-              </select>
+              <div className="px-3 py-2 border-2 border-gray-300 rounded bg-gray-50">
+                <span style={{ color: COLORS.primary, opacity: OPACITY.medium }}>
+                  {assignment?.allowedTypes[0]?.replace(/_/g, ' ') || 'N/A'}
+                </span>
+              </div>
+              <p className="text-xs mt-1" style={{ color: COLORS.primary, opacity: OPACITY.low }}>
+                Submission type is set by your instructor
+              </p>
             </div>
 
             <div>
@@ -178,10 +204,10 @@ function AssignmentPage() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={createMutation.isPending || updateMutation.isPending}
+                disabled={isSubmitting}
                 className="px-6 py-2 bg-black text-white rounded font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
               >
-                {createMutation.isPending || updateMutation.isPending
+                {isSubmitting
                   ? 'Saving...'
                   : existingSubmission
                     ? 'Update Submission'
