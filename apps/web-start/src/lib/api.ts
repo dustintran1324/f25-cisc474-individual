@@ -10,6 +10,8 @@ import type {
   SubmissionUpdateIn,
   NotificationOut,
   NotificationUpdateIn,
+  UserOut,
+  UserUpdateIn,
 } from '@repo/api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
@@ -191,6 +193,25 @@ export const createApiClient = (token?: string) => ({
         body: JSON.stringify({ isRead: true } as NotificationUpdateIn),
       });
       if (!response.ok) throw new Error('Failed to mark notification as read');
+      return response.json();
+    },
+  },
+
+  users: {
+    getMe: async (): Promise<UserOut> => {
+      const response = await fetch(`${BACKEND_URL}/users/me`, {
+        headers: createAuthHeaders(token),
+      });
+      if (!response.ok) throw new Error('Failed to fetch current user');
+      return response.json();
+    },
+    update: async (id: string, data: UserUpdateIn): Promise<UserOut> => {
+      const response = await fetch(`${BACKEND_URL}/users/${id}`, {
+        method: 'PATCH',
+        headers: createAuthHeaders(token),
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update user');
       return response.json();
     },
   },

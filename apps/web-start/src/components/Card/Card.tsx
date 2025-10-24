@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 
 export interface Assignment {
   id: string;
   title: string;
   dueDate: string;
   classCode: string;
+  courseId?: string;
   description: string;
   type: string;
   points: number;
@@ -18,10 +20,24 @@ interface CardProps {
 
 export default function Card({ assignment, onClick }: CardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const navigate = useNavigate();
 
   const handleClick = () => {
     if (onClick) {
       onClick(assignment);
+    }
+  };
+
+  const handleReadMore = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (assignment.courseId) {
+      navigate({
+        to: '/courses/$courseId/assignments/$assignmentId',
+        params: {
+          courseId: assignment.courseId,
+          assignmentId: assignment.id,
+        },
+      });
     }
   };
 
@@ -101,16 +117,12 @@ export default function Card({ assignment, onClick }: CardProps) {
             {/* White fade overlay at bottom with read more */}
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent">
               <div className="absolute bottom-2 right-2">
-                <button 
+                <button
                   className="text-xs underline hover:opacity-70 transition-opacity"
                   style={{ color: '#2e2e2e' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Navigate to assignment page
-                    console.log('Navigate to assignment page:', assignment.id);
-                  }}
+                  onClick={handleReadMore}
                 >
-                  Read more
+                  View More
                 </button>
               </div>
             </div>
