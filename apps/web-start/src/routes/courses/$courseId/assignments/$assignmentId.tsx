@@ -5,7 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { PageHeader } from '../../../../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../../../../constants/theme';
 import { useApi } from '../../../../hooks/useApi';
-import type { SubmissionCreateIn, SubmissionUpdateIn, SubmissionOut } from '@repo/api';
+import type { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
 
 export const Route = createFileRoute('/courses/$courseId/assignments/$assignmentId')({
   component: AssignmentPage,
@@ -40,8 +40,8 @@ function AssignmentPage() {
     queryKey: ['submission', currentUser?.id, assignmentId],
     queryFn: async () => {
       if (!currentUser) return null;
-      const submission = await api.submissions.getAll(currentUser.id, assignmentId);
-      return submission as SubmissionOut | null;
+      const submissions = await api.submissions.getAll(currentUser.id, assignmentId);
+      return Array.isArray(submissions) && submissions.length > 0 ? submissions[0] : null;
     },
     enabled: !!currentUser && isAuthenticated,
   });
