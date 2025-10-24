@@ -132,7 +132,7 @@ export default function Card({ assignment, onClick }: CardProps) {
       </div>
 
       <style>{`
-        .transform-style-preserve-3d {
+C        .transform-style-preserve-3d {
           transform-style: preserve-3d;
         }
         .backface-hidden {
