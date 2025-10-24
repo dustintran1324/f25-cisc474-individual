@@ -2,13 +2,13 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { PageHeader } from '../../../../components/PageHeader/PageHeader';
-import { COLORS, OPACITY } from '../../../../constants/theme';
-import { useApi } from '../../../../hooks/useApi';
-import { useCurrentUser } from '../../../../hooks/useCurrentUser';
+import { PageHeader } from '../../components/PageHeader/PageHeader';
+import { COLORS, OPACITY } from '../../constants/theme';
+import { useApi } from '../../hooks/useApi';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 import type { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
 
-export const Route = createFileRoute('/courses/$courseId/assignments/$assignmentId')({
+export const Route = createFileRoute('/assignments/$assignmentId')({
   component: AssignmentPage,
 });
 
@@ -21,7 +21,7 @@ function AssignmentPage() {
 
   const { data: currentUser } = useCurrentUser();
 
-  const { data: assignment, isLoading: assignmentLoading } = useQuery({
+  const { data: assignment, isLoading: assignmentLoading, error: assignmentError } = useQuery({
     queryKey: ['assignment', assignmentId],
     queryFn: () => api.assignments.getById(assignmentId),
     enabled: !!assignmentId && isAuthenticated,
@@ -113,10 +113,24 @@ function AssignmentPage() {
     }
   };
 
-  if (assignmentLoading || !currentUser) {
+  if (assignmentLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <p style={{ color: COLORS.primary }}>Loading...</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p style={{ color: COLORS.primary }}>Loading assignment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (assignmentError) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 font-semibold mb-2">Failed to load assignment</p>
+          <p className="text-sm text-gray-600">{assignmentError.message}</p>
+        </div>
       </div>
     );
   }
@@ -125,6 +139,17 @@ function AssignmentPage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <p style={{ color: COLORS.primary }}>Assignment not found</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p style={{ color: COLORS.primary }}>Loading user data...</p>
+        </div>
       </div>
     );
   }

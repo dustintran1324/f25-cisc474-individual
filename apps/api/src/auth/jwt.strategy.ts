@@ -31,8 +31,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   validate(payload: any): JwtUser {
     return {
       sub: payload.sub,
-      email: payload.email || payload['https://myapp.com/email'],
-      name: payload.name || payload['https://myapp.com/name'],
+      email: payload.email || payload['https://myapp.com/email'] || payload.nickname,
+      name: payload.name || payload['https://myapp.com/name'] || payload.nickname,
       picture: payload.picture || payload['https://myapp.com/picture'],
       email_verified: payload.email_verified,
     };

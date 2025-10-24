@@ -23,21 +23,21 @@ export class UsersService {
   }
 
   async createFromAuth0(jwtUser: JwtUser) {
-    // Parse first and last name from full name
-    const nameParts = jwtUser.name?.split(' ') || [''];
-    const firstName = nameParts[0];
+    const name = jwtUser.name || jwtUser.email || 'User';
+    const nameParts = name.split(' ');
+    const firstName = nameParts[0] || 'User';
     const lastName = nameParts.slice(1).join(' ') || '';
 
     return this.prisma.user.create({
       data: {
         auth0Id: jwtUser.sub,
-        email: jwtUser.email,
-        name: jwtUser.name,
+        email: jwtUser.email || `${jwtUser.sub}@example.com`,
+        name,
         firstName,
         lastName,
         picture: jwtUser.picture,
         emailVerified: jwtUser.email_verified ? new Date() : null,
-        role: 'STUDENT', // Default to student role
+        role: 'STUDENT',
         lastLoginAt: new Date(),
       },
     });

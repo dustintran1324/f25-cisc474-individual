@@ -28,6 +28,11 @@ export const AssignmentOut = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   courseId: z.string(),
+  course: z.object({
+    id: z.string(),
+    code: z.string(),
+    title: z.string(),
+  }).optional(),
 });
 
 export type AssignmentOut = z.infer<typeof AssignmentOut>;

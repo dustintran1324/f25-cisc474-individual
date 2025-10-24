@@ -30,15 +30,16 @@ export default function Card({ assignment, onClick }: CardProps) {
 
   const handleReadMore = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (assignment.courseId) {
+    e.preventDefault();
+    setIsFlipped(false);
+    setTimeout(() => {
       navigate({
-        to: '/courses/$courseId/assignments/$assignmentId',
+        to: '/assignments/$assignmentId',
         params: {
-          courseId: assignment.courseId,
           assignmentId: assignment.id,
         },
       });
-    }
+    }, 100);
   };
 
   const formatDate = (dateString: string) => {
@@ -130,7 +131,7 @@ export default function Card({ assignment, onClick }: CardProps) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .transform-style-preserve-3d {
           transform-style: preserve-3d;
         }

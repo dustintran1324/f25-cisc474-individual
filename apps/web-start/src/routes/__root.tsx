@@ -12,6 +12,7 @@ import appCss from '../styles.css?url';
 import type { QueryClient } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar/Navbar';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 export interface MyRouterContext {
   queryClient: QueryClient;
@@ -50,6 +51,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootLayout() {
   const { isAuthenticated } = useAuth0();
+  useCurrentUser();
 
   return (
     <div>

@@ -4,7 +4,6 @@ import ProgressTracker from '../components/ProgressTracker/ProgressTracker';
 import Dashboard from '../components/Dashboard/Dashboard';
 import CardsGroup from '../components/CardsGroup/CardsGroup';
 import Calendar from '../components/Calendar/Calendar';
-import { Assignment } from '../components/Card/Card';
 import { COLORS } from '../constants/theme';
 
 export const Route = createFileRoute('/')({
@@ -13,10 +12,6 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
-
-  const handleAssignmentClick = (assignment: Assignment) => {
-    console.log('Navigate to assignment:', assignment.id);
-  };
 
   if (isLoading) {
     return (
@@ -120,7 +115,7 @@ function HomePage() {
           </div>
 
           <div>
-            <CardsGroup onAssignmentClick={handleAssignmentClick} />
+            <CardsGroup />
           </div>
         </div>
 

@@ -16,6 +16,8 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses/index'
+import { Route as AssignmentsIndexRouteImport } from './routes/assignments/index'
+import { Route as AssignmentsAssignmentIdRouteImport } from './routes/assignments/$assignmentId'
 import { Route as CoursesCourseIdIndexRouteImport } from './routes/courses/$courseId/index'
 import { Route as CoursesCourseIdAssignmentsAssignmentIdRouteImport } from './routes/courses/$courseId/assignments/$assignmentId'
 
@@ -54,6 +56,16 @@ const CoursesIndexRoute = CoursesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CoursesRoute,
 } as any)
+const AssignmentsIndexRoute = AssignmentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AssignmentsRoute,
+} as any)
+const AssignmentsAssignmentIdRoute = AssignmentsAssignmentIdRouteImport.update({
+  id: '/$assignmentId',
+  path: '/$assignmentId',
+  getParentRoute: () => AssignmentsRoute,
+} as any)
 const CoursesCourseIdIndexRoute = CoursesCourseIdIndexRouteImport.update({
   id: '/$courseId/',
   path: '/$courseId/',
@@ -68,21 +80,24 @@ const CoursesCourseIdAssignmentsAssignmentIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/assignments': typeof AssignmentsRoute
+  '/assignments': typeof AssignmentsRouteWithChildren
   '/courses': typeof CoursesRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/submissions': typeof SubmissionsRoute
+  '/assignments/$assignmentId': typeof AssignmentsAssignmentIdRoute
+  '/assignments/': typeof AssignmentsIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/courses/$courseId': typeof CoursesCourseIdIndexRoute
   '/courses/$courseId/assignments/$assignmentId': typeof CoursesCourseIdAssignmentsAssignmentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/assignments': typeof AssignmentsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/submissions': typeof SubmissionsRoute
+  '/assignments/$assignmentId': typeof AssignmentsAssignmentIdRoute
+  '/assignments': typeof AssignmentsIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/courses/$courseId': typeof CoursesCourseIdIndexRoute
   '/courses/$courseId/assignments/$assignmentId': typeof CoursesCourseIdAssignmentsAssignmentIdRoute
@@ -90,11 +105,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/assignments': typeof AssignmentsRoute
+  '/assignments': typeof AssignmentsRouteWithChildren
   '/courses': typeof CoursesRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/submissions': typeof SubmissionsRoute
+  '/assignments/$assignmentId': typeof AssignmentsAssignmentIdRoute
+  '/assignments/': typeof AssignmentsIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/courses/$courseId/': typeof CoursesCourseIdIndexRoute
   '/courses/$courseId/assignments/$assignmentId': typeof CoursesCourseIdAssignmentsAssignmentIdRoute
@@ -108,16 +125,19 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/submissions'
+    | '/assignments/$assignmentId'
+    | '/assignments/'
     | '/courses/'
     | '/courses/$courseId'
     | '/courses/$courseId/assignments/$assignmentId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/assignments'
     | '/notifications'
     | '/profile'
     | '/submissions'
+    | '/assignments/$assignmentId'
+    | '/assignments'
     | '/courses'
     | '/courses/$courseId'
     | '/courses/$courseId/assignments/$assignmentId'
@@ -129,6 +149,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/submissions'
+    | '/assignments/$assignmentId'
+    | '/assignments/'
     | '/courses/'
     | '/courses/$courseId/'
     | '/courses/$courseId/assignments/$assignmentId'
@@ -136,7 +158,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AssignmentsRoute: typeof AssignmentsRoute
+  AssignmentsRoute: typeof AssignmentsRouteWithChildren
   CoursesRoute: typeof CoursesRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
@@ -194,6 +216,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/assignments/': {
+      id: '/assignments/'
+      path: '/'
+      fullPath: '/assignments/'
+      preLoaderRoute: typeof AssignmentsIndexRouteImport
+      parentRoute: typeof AssignmentsRoute
+    }
+    '/assignments/$assignmentId': {
+      id: '/assignments/$assignmentId'
+      path: '/$assignmentId'
+      fullPath: '/assignments/$assignmentId'
+      preLoaderRoute: typeof AssignmentsAssignmentIdRouteImport
+      parentRoute: typeof AssignmentsRoute
+    }
     '/courses/$courseId/': {
       id: '/courses/$courseId/'
       path: '/$courseId'
@@ -210,6 +246,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AssignmentsRouteChildren {
+  AssignmentsAssignmentIdRoute: typeof AssignmentsAssignmentIdRoute
+  AssignmentsIndexRoute: typeof AssignmentsIndexRoute
+}
+
+const AssignmentsRouteChildren: AssignmentsRouteChildren = {
+  AssignmentsAssignmentIdRoute: AssignmentsAssignmentIdRoute,
+  AssignmentsIndexRoute: AssignmentsIndexRoute,
+}
+
+const AssignmentsRouteWithChildren = AssignmentsRoute._addFileChildren(
+  AssignmentsRouteChildren,
+)
 
 interface CoursesRouteChildren {
   CoursesIndexRoute: typeof CoursesIndexRoute
@@ -229,7 +279,7 @@ const CoursesRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AssignmentsRoute: AssignmentsRoute,
+  AssignmentsRoute: AssignmentsRouteWithChildren,
   CoursesRoute: CoursesRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,

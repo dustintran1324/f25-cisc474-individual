@@ -33,6 +33,7 @@ export function useApi() {
                   });
                 } catch (error) {
                   console.error('Error getting access token:', error);
+                  throw error;
                 }
               }
 
