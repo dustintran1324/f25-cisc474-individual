@@ -48,5 +48,5 @@ export function useApi() {
     }) as ReturnType<typeof createApiClient>;
   }, [getAccessTokenSilently, isAuthenticated]);
 
-  return { api, isAuthenticated };
+return { api, isAuthenticated };
 }
