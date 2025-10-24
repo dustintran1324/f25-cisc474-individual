@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { PageHeader } from '../../../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../../../constants/theme';
-import { api } from '../../../lib/api';
+import { useApi } from '../../../hooks/useApi';
 
 export const Route = createFileRoute('/courses/$courseId/')({
   component: CoursePage,
@@ -11,17 +12,20 @@ export const Route = createFileRoute('/courses/$courseId/')({
 
 function CoursePage() {
   const { courseId } = Route.useParams();
+  const { isAuthenticated } = useAuth0();
+  const { api } = useApi();
   const [activeTab, setActiveTab] = useState<'assignments' | 'syllabus' | 'modules' | 'grades'>('assignments');
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ['course', courseId],
     queryFn: () => api.courses.getById(courseId),
+    enabled: !!courseId && isAuthenticated,
   });
 
   const { data: assignments = [], isLoading: assignmentsLoading } = useQuery({
     queryKey: ['assignments', courseId],
     queryFn: () => api.assignments.getAll(courseId),
-    enabled: activeTab === 'assignments',
+    enabled: activeTab === 'assignments' && !!courseId && isAuthenticated,
   });
 
   if (courseLoading) {

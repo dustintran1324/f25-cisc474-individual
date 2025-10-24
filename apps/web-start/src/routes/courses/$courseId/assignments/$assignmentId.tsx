@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { PageHeader } from '../../../../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../../../../constants/theme';
-import { api } from '../../../../lib/api';
+import { useApi } from '../../../../hooks/useApi';
 import type { SubmissionCreateIn, SubmissionUpdateIn, SubmissionOut } from '@repo/api';
 
 export const Route = createFileRoute('/courses/$courseId/assignments/$assignmentId')({
@@ -12,35 +13,37 @@ export const Route = createFileRoute('/courses/$courseId/assignments/$assignment
 
 function AssignmentPage() {
   const { assignmentId } = Route.useParams();
+  const { isAuthenticated } = useAuth0();
+  const { api } = useApi();
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
 
-  // For MVP, we'll use the first student from the users list
-  // In production, this would come from authentication
   const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
+    queryKey: ['user', 'me'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/users`);
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const users = await response.json();
-      return users.find((u: any) => u.role === 'STUDENT') || users[0];
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/users/me`, {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch current user');
+      return response.json();
     },
+    enabled: isAuthenticated,
   });
 
   const { data: assignment, isLoading: assignmentLoading } = useQuery({
     queryKey: ['assignment', assignmentId],
     queryFn: () => api.assignments.getById(assignmentId),
+    enabled: !!assignmentId && isAuthenticated,
   });
 
   const { data: existingSubmission } = useQuery({
     queryKey: ['submission', currentUser?.id, assignmentId],
     queryFn: async () => {
       if (!currentUser) return null;
-      // When both userId and assignmentId are provided, backend returns a single submission (not an array)
       const submission = await api.submissions.getAll(currentUser.id, assignmentId);
       return submission as SubmissionOut | null;
     },
-    enabled: !!currentUser,
+    enabled: !!currentUser && isAuthenticated,
   });
 
   // Populate content when existing submission loads

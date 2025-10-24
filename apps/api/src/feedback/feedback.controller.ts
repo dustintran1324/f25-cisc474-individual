@@ -7,11 +7,14 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { FeedbackCreateIn, FeedbackUpdateIn } from '@repo/api';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('feedback')
+@UseGuards(JwtAuthGuard)
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 

@@ -1,19 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth0 } from '@auth0/auth0-react';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../constants/theme';
-import { api } from '../lib/api';
+import { useApi } from '../hooks/useApi';
 
 export const Route = createFileRoute('/submissions')({
   component: SubmissionsPage,
 });
 
-const MOCK_USER_ID = 'cm2qhg1a00001edjx1234mock';
-
 function SubmissionsPage() {
+  const { isAuthenticated } = useAuth0();
+  const { api } = useApi();
+
   const { data: submissions = [], isLoading } = useQuery({
-    queryKey: ['submissions', MOCK_USER_ID],
-    queryFn: () => api.submissions.getAll(MOCK_USER_ID),
+    queryKey: ['submissions'],
+    queryFn: () => api.submissions.getAll(),
+    enabled: isAuthenticated,
   });
 
   if (isLoading) {
