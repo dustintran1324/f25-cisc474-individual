@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 import {
   Controller,
   Get,
