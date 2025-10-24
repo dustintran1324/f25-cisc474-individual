@@ -24,6 +24,8 @@ export const getRouter = () => {
             audience: import.meta.env.VITE_AUTH0_AUDIENCE,
             scope: 'openid profile email access:api',
           }}
+          cacheLocation="localstorage"
+          useRefreshTokens={true}
         >
           <TanstackQuery.Provider {...rqContext}>
             {props.children}

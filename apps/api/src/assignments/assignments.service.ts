@@ -41,6 +41,15 @@ export class AssignmentsService {
   async findByCourse(courseId: string) {
     return this.prisma.assignment.findMany({
       where: { courseId },
+      include: {
+        course: {
+          select: {
+            id: true,
+            code: true,
+            title: true,
+          },
+        },
+      },
       orderBy: {
         dueDate: 'asc',
       },

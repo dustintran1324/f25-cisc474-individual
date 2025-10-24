@@ -1,69 +1,72 @@
 import Card, { Assignment } from '../Card/Card';
+import { useUpcomingAssignments } from '../../hooks/useAssignments';
+import type { AssignmentOut } from '@repo/api';
 
 interface CardsGroupProps {
-  assignments?: Assignment[];
   onAssignmentClick?: (assignment: Assignment) => void;
 }
 
-const defaultAssignments: Assignment[] = [
-  {
-    id: '1',
-    title: 'React Component Design',
-    dueDate: '2024-01-15',
-    classCode: 'CISC474',
-    description: 'Create a responsive React component library with TypeScript support. Include proper documentation and testing.',
-    type: 'Programming Assignment',
-    points: 100,
-    status: 'pending'
-  },
-  {
-    id: '2',
-    title: 'Database Schema Design',
-    dueDate: '2024-01-18',
-    classCode: 'CISC437',
-    description: 'Design a normalized database schema for an e-commerce platform. Include ER diagrams and SQL scripts.',
-    type: 'Project',
-    points: 75,
-    status: 'submitted'
-  },
-  {
-    id: '3',
-    title: 'Algorithm Analysis Report',
-    dueDate: '2024-01-20',
-    classCode: 'CISC320',
-    description: 'Analyze time and space complexity of sorting algorithms. Write a comprehensive report with benchmarks.',
-    type: 'Research Paper',
-    points: 85,
-    status: 'graded'
-  },
-  {
-    id: '4',
-    title: 'System Architecture Proposal',
-    dueDate: '2024-01-25',
-    classCode: 'CISC474',
-    description: 'Design a microservices architecture for a large-scale web application. Include deployment strategies.',
-    type: 'Design Document',
-    points: 90,
-    status: 'pending'
-  }
-];
+const transformAssignment = (assignment: AssignmentOut): Assignment => {
+  return {
+    id: assignment.id,
+    title: assignment.title,
+    dueDate: new Date(assignment.dueDate).toISOString(),
+    classCode: assignment.course?.code || 'N/A',
+    courseId: assignment.courseId,
+    description: assignment.description || 'No description available',
+    type: assignment.allowedTypes?.[0] || 'Assignment',
+    points: assignment.maxPoints,
+    status: 'pending',
+  };
+};
 
-export default function CardsGroup({ 
-  assignments = defaultAssignments, 
-  onAssignmentClick 
-}: CardsGroupProps) {
+export default function CardsGroup({ onAssignmentClick }: CardsGroupProps) {
+  const { data: upcomingAssignments, isLoading, error } = useUpcomingAssignments(4);
+
   const handleAssignmentClick = (assignment: Assignment) => {
     if (onAssignmentClick) {
       onAssignmentClick(assignment);
-    } else {
-      // Default behavior: navigate to assignment page (placeholder)
-      console.log('Navigate to assignment:', assignment.id);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-72">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading upcoming assignments...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-72">
+        <div className="text-center text-red-600">
+          <p className="font-semibold mb-2">Failed to load assignments</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!upcomingAssignments || upcomingAssignments.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-72">
+        <div className="text-center text-gray-600">
+          <p className="text-lg font-semibold mb-2">No upcoming assignments</p>
+          <p className="text-sm">You're all caught up!</p>
+        </div>
+      </div>
+    );
+  }
+
+  const transformedAssignments = upcomingAssignments.map(transformAssignment);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-      {assignments.map((assignment) => (
+      {transformedAssignments.map((assignment) => (
         <Card
           key={assignment.id}
           assignment={assignment}
