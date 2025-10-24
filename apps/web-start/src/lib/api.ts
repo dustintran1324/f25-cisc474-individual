@@ -14,22 +14,36 @@ import type {
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
-export const api = {
+const createAuthHeaders = (token?: string): HeadersInit => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
+export const createApiClient = (token?: string) => ({
   courses: {
     getAll: async (): Promise<CourseOut[]> => {
-      const response = await fetch(`${BACKEND_URL}/courses`);
+      const response = await fetch(`${BACKEND_URL}/courses`, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch courses');
       return response.json();
     },
     getById: async (id: string): Promise<CourseOut> => {
-      const response = await fetch(`${BACKEND_URL}/courses/${id}`);
+      const response = await fetch(`${BACKEND_URL}/courses/${id}`, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch course');
       return response.json();
     },
     create: async (data: CourseCreateIn): Promise<CourseOut> => {
       const response = await fetch(`${BACKEND_URL}/courses`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to create course');
@@ -38,7 +52,7 @@ export const api = {
     update: async (id: string, data: CourseUpdateIn): Promise<CourseOut> => {
       const response = await fetch(`${BACKEND_URL}/courses/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to update course');
@@ -47,6 +61,7 @@ export const api = {
     delete: async (id: string): Promise<void> => {
       const response = await fetch(`${BACKEND_URL}/courses/${id}`, {
         method: 'DELETE',
+        headers: token ? createAuthHeaders(token) : undefined,
       });
       if (!response.ok) throw new Error('Failed to delete course');
     },
@@ -57,19 +72,23 @@ export const api = {
       const url = courseId
         ? `${BACKEND_URL}/assignments?courseId=${courseId}`
         : `${BACKEND_URL}/assignments`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch assignments');
       return response.json();
     },
     getById: async (id: string): Promise<AssignmentOut> => {
-      const response = await fetch(`${BACKEND_URL}/assignments/${id}`);
+      const response = await fetch(`${BACKEND_URL}/assignments/${id}`, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch assignment');
       return response.json();
     },
     create: async (data: AssignmentCreateIn): Promise<AssignmentOut> => {
       const response = await fetch(`${BACKEND_URL}/assignments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to create assignment');
@@ -78,7 +97,7 @@ export const api = {
     update: async (id: string, data: AssignmentUpdateIn): Promise<AssignmentOut> => {
       const response = await fetch(`${BACKEND_URL}/assignments/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to update assignment');
@@ -87,6 +106,7 @@ export const api = {
     delete: async (id: string): Promise<void> => {
       const response = await fetch(`${BACKEND_URL}/assignments/${id}`, {
         method: 'DELETE',
+        headers: token ? createAuthHeaders(token) : undefined,
       });
       if (!response.ok) throw new Error('Failed to delete assignment');
     },
@@ -98,19 +118,23 @@ export const api = {
       if (userId) params.append('userId', userId);
       if (assignmentId) params.append('assignmentId', assignmentId);
       const url = `${BACKEND_URL}/submissions${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch submissions');
       return response.json();
     },
     getById: async (id: string): Promise<SubmissionOut> => {
-      const response = await fetch(`${BACKEND_URL}/submissions/${id}`);
+      const response = await fetch(`${BACKEND_URL}/submissions/${id}`, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch submission');
       return response.json();
     },
     create: async (data: SubmissionCreateIn): Promise<SubmissionOut> => {
       const response = await fetch(`${BACKEND_URL}/submissions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to create submission');
@@ -119,7 +143,7 @@ export const api = {
     update: async (id: string, data: SubmissionUpdateIn): Promise<SubmissionOut> => {
       const response = await fetch(`${BACKEND_URL}/submissions/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to update submission');
@@ -128,6 +152,7 @@ export const api = {
     submit: async (id: string): Promise<SubmissionOut> => {
       const response = await fetch(`${BACKEND_URL}/submissions/${id}/submit`, {
         method: 'POST',
+        headers: token ? createAuthHeaders(token) : undefined,
       });
       if (!response.ok) throw new Error('Failed to submit submission');
       return response.json();
@@ -135,6 +160,7 @@ export const api = {
     delete: async (id: string): Promise<void> => {
       const response = await fetch(`${BACKEND_URL}/submissions/${id}`, {
         method: 'DELETE',
+        headers: token ? createAuthHeaders(token) : undefined,
       });
       if (!response.ok) throw new Error('Failed to delete submission');
     },
@@ -145,23 +171,29 @@ export const api = {
       const url = userId
         ? `${BACKEND_URL}/notifications?userId=${userId}`
         : `${BACKEND_URL}/notifications`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch notifications');
       return response.json();
     },
     getById: async (id: string): Promise<NotificationOut> => {
-      const response = await fetch(`${BACKEND_URL}/notifications/${id}`);
+      const response = await fetch(`${BACKEND_URL}/notifications/${id}`, {
+        headers: token ? createAuthHeaders(token) : undefined,
+      });
       if (!response.ok) throw new Error('Failed to fetch notification');
       return response.json();
     },
     markAsRead: async (id: string): Promise<NotificationOut> => {
       const response = await fetch(`${BACKEND_URL}/notifications/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createAuthHeaders(token),
         body: JSON.stringify({ isRead: true } as NotificationUpdateIn),
       });
       if (!response.ok) throw new Error('Failed to mark notification as read');
       return response.json();
     },
   },
-};
+});
+
+export const api = createApiClient();

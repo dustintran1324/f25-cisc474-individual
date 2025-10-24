@@ -11,6 +11,7 @@ import TanStackQueryDevtools from '../integrations/devtools';
 import appCss from '../styles.css?url';
 import type { QueryClient } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar/Navbar';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export interface MyRouterContext {
   queryClient: QueryClient;
@@ -48,10 +49,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootLayout() {
+  const { isAuthenticated } = useAuth0();
+
   return (
     <div>
       <Navbar />
-      <main className="pt-20">
+      <main className={isAuthenticated ? 'pt-20' : ''}>
         <Outlet />
       </main>
     </div>

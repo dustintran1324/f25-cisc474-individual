@@ -7,11 +7,14 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { AssignmentCreateIn, AssignmentUpdateIn } from '@repo/api';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('assignments')
+@UseGuards(JwtAuthGuard)
 export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) {}
 

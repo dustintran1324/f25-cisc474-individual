@@ -17,11 +17,14 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('submissions')
+@UseGuards(JwtAuthGuard)
 export class SubmissionsController {
   constructor(private readonly submissionsService: SubmissionsService) {}
 
