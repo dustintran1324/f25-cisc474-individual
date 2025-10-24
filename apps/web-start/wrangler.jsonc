@@ -6,8 +6,8 @@
   "main": "@tanstack/react-start/server-entry",
   "vars": {
     "VITE_BACKEND_URL": "https://f25-cisc474-individual-isvm.onrender.com",
-    "VITE_AUTH0_DOMAIN": "dev-5rkjdccmvv7v4vov.us.auth0.com",
-    "VITE_AUTH0_CLIENT_ID": "YGYnJUg0wLcQp3bAlgQNKuK7zSoIqHbS",
+    "VITE_AUTH0_DOMAIN": "dev-e7m8q2xxawbubc6b.us.auth0.com",
+    "VITE_AUTH0_CLIENT_ID": "Lp6D21JCJTPAStAmkL2SmhCfHdwN8n1K",
     "VITE_AUTH0_AUDIENCE": "https://f25-cisc474-individual-isvm.onrender.com"
   }
 }
