@@ -96,11 +96,25 @@ function SubmissionsPage() {
                       aria-label={`Delete submission ${submission.id}`}
                       onClick={(e) => handleDelete(submission, e)}
                       disabled={isDeleting}
-                      className={`px-3 py-1 rounded text-white border-2 border-black ${
+                      className={`px-3 py-1 rounded text-white border-2 transition-colors ${
                         isDeleting
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-red-600 hover:bg-red-700 active:translate-y-px'
+                          ? 'bg-gray-400 cursor-not-allowed border-gray-400'
+                          : 'cursor-pointer active:translate-y-px'
                       }`}
+                      style={{
+                        backgroundColor: isDeleting ? undefined : COLORS.medieval.red,
+                        borderColor: isDeleting ? undefined : COLORS.medieval.red,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isDeleting) {
+                          e.currentTarget.style.opacity = '0.8';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isDeleting) {
+                          e.currentTarget.style.opacity = '1';
+                        }
+                      }}
                     >
                       {isDeleting ? 'Deleting…' : 'Delete'}
                     </button>
