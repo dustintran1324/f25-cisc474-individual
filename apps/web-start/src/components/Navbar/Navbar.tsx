@@ -17,9 +17,9 @@ export function Navbar() {
       <nav className="flex items-center justify-between px-l py-m max-w-7xl mx-auto">
         <Link
           to="/profile"
-          className="flex items-center gap-s hover:opacity-80 transition-opacity"
+          className="flex items-center gap-s hover:opacity-80 transition-opacity cursor-pointer"
         >
-          <Avatar size="small" imageUrl={user?.picture} />
+          <Avatar size="small" imageSrc={user?.picture} />
           <span className="font-medium text-base" style={{ color: COLORS.primary }}>
             Welcome, {user?.name || 'User'}
           </span>

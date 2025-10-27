@@ -127,7 +127,7 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +141,7 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
           <div className="mb-8">
             <button
               onClick={() => setIsCreating(!isCreating)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-black text-white rounded-lg hover:opacity-80 transition-opacity"
+              className="w-full flex items-center justify-between px-4 py-3 bg-black text-white rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
             >
               <span className="font-medium">
                 {isCreating ? 'Cancel' : '+ Create New Course'}
@@ -205,7 +205,18 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
                 <button
                   type="submit"
                   disabled={createMutation.isPending || !title.trim() || !code.trim()}
-                  className="w-full px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 text-white rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  style={{ backgroundColor: COLORS.medieval.green }}
+                  onMouseEnter={(e) => {
+                    if (!createMutation.isPending && title.trim() && code.trim()) {
+                      e.currentTarget.style.backgroundColor = COLORS.medieval.greenHover;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!createMutation.isPending) {
+                      e.currentTarget.style.backgroundColor = COLORS.medieval.green;
+                    }
+                  }}
                 >
                   {createMutation.isPending ? 'Creating...' : 'Create Course'}
                 </button>
@@ -222,13 +233,13 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
                 </h3>
                 <button
                   onClick={handleCancelEdit}
-                  className="text-sm text-gray-600 hover:text-gray-800"
+                  className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
                 >
                   Cancel
                 </button>
               </div>
 
-              <form onSubmit={handleUpdate} className="p-4 border-2 border-blue-600 rounded-lg space-y-4 bg-blue-50">
+              <form onSubmit={handleUpdate} className="p-4 border-2 rounded-lg space-y-4" style={{ borderColor: COLORS.medieval.yellow, backgroundColor: COLORS.medieval.yellowLight }}>
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: COLORS.primary }}>
                     Course Title *
@@ -280,14 +291,25 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
                   <button
                     type="submit"
                     disabled={updateMutation.isPending || !title.trim() || !code.trim()}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2 text-white rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    style={{ backgroundColor: updateMutation.isPending ? COLORS.gray[400] : COLORS.medieval.green }}
+                    onMouseEnter={(e) => {
+                      if (!updateMutation.isPending && title.trim() && code.trim()) {
+                        e.currentTarget.style.backgroundColor = COLORS.medieval.greenHover;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!updateMutation.isPending) {
+                        e.currentTarget.style.backgroundColor = COLORS.medieval.green;
+                      }
+                    }}
                   >
                     {updateMutation.isPending ? 'Updating...' : 'Update Course'}
                   </button>
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="px-4 py-2 border-2 border-gray-400 text-gray-700 rounded font-medium hover:bg-gray-100 transition-colors"
+                    className="px-4 py-2 border-2 border-gray-400 text-gray-700 rounded font-medium hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -329,7 +351,16 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
                     <div className="flex gap-2 ml-4">
                       <button
                         onClick={() => handleEdit(course)}
-                        className="px-3 py-1 text-sm border-2 border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors"
+                        className="px-3 py-1 text-sm border-2 rounded transition-colors cursor-pointer"
+                        style={{ borderColor: COLORS.medieval.yellow, color: COLORS.medieval.yellowDark }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = COLORS.medieval.yellow;
+                          e.currentTarget.style.color = COLORS.white;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = COLORS.medieval.yellowDark;
+                        }}
                         aria-label={`Edit ${course.title}`}
                       >
                         Edit
@@ -337,7 +368,20 @@ export function ManageCoursesModal({ isOpen, onClose }: ManageCoursesModalProps)
                       <button
                         onClick={() => handleDelete(course.id, course.title)}
                         disabled={deleteMutation.isPending}
-                        className="px-3 py-1 text-sm border-2 border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition-colors disabled:opacity-50"
+                        className="px-3 py-1 text-sm border-2 rounded transition-colors disabled:opacity-50 cursor-pointer"
+                        style={{ borderColor: COLORS.medieval.red, color: COLORS.medieval.red }}
+                        onMouseEnter={(e) => {
+                          if (!deleteMutation.isPending) {
+                            e.currentTarget.style.backgroundColor = COLORS.medieval.red;
+                            e.currentTarget.style.color = COLORS.white;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!deleteMutation.isPending) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = COLORS.medieval.red;
+                          }
+                        }}
                         aria-label={`Delete ${course.title}`}
                       >
                         {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
