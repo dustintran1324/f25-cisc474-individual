@@ -23,6 +23,27 @@ export default function Card({ assignment, onClick }: CardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
+    // Navigate directly to assignment page (like Canvas)
+    // Use the course route format since it works reliably
+    if (assignment.courseId) {
+      navigate({
+        to: '/courses/$courseId/assignments/$assignmentId',
+        params: {
+          courseId: assignment.courseId,
+          assignmentId: assignment.id,
+        },
+      });
+    } else {
+      // Fallback to standalone route if no courseId
+      navigate({
+        to: '/assignments/$assignmentId',
+        params: {
+          assignmentId: assignment.id,
+        },
+      });
+    }
+
+    // Also call optional callback if provided
     if (onClick) {
       onClick(assignment);
     }
@@ -33,12 +54,24 @@ export default function Card({ assignment, onClick }: CardProps) {
     e.preventDefault();
     setIsFlipped(false);
     setTimeout(() => {
-      navigate({
-        to: '/assignments/$assignmentId',
-        params: {
-          assignmentId: assignment.id,
-        },
-      });
+      // Use the course route format since it works reliably
+      if (assignment.courseId) {
+        navigate({
+          to: '/courses/$courseId/assignments/$assignmentId',
+          params: {
+            courseId: assignment.courseId,
+            assignmentId: assignment.id,
+          },
+        });
+      } else {
+        // Fallback to standalone route if no courseId
+        navigate({
+          to: '/assignments/$assignmentId',
+          params: {
+            assignmentId: assignment.id,
+          },
+        });
+      }
     }, 100);
   };
 

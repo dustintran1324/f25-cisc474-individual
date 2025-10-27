@@ -1,11 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { PageHeader } from '../../../../components/PageHeader/PageHeader';
 import { COLORS, OPACITY } from '../../../../constants/theme';
-import { useApi } from '../../../../hooks/useApi';
+import { useAssignment } from '../../../../hooks/useAssignments';
 import { useCurrentUser } from '../../../../hooks/useCurrentUser';
+import {
+  useSubmissionByUserAndAssignment,
+  useCreateSubmission,
+  useUpdateSubmission
+} from '../../../../hooks/useSubmissions';
 import type { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
 
 export const Route = createFileRoute('/courses/$courseId/assignments/$assignmentId')({
@@ -14,28 +17,14 @@ export const Route = createFileRoute('/courses/$courseId/assignments/$assignment
 
 function AssignmentPage() {
   const { assignmentId } = Route.useParams();
-  const { isAuthenticated } = useAuth0();
-  const { api } = useApi();
-  const queryClient = useQueryClient();
   const [content, setContent] = useState('');
 
   const { data: currentUser } = useCurrentUser();
+  const { data: assignment, isLoading: assignmentLoading } = useAssignment(assignmentId);
+  const { data: existingSubmission } = useSubmissionByUserAndAssignment(currentUser?.id, assignmentId);
 
-  const { data: assignment, isLoading: assignmentLoading } = useQuery({
-    queryKey: ['assignment', assignmentId],
-    queryFn: () => api.assignments.getById(assignmentId),
-    enabled: !!assignmentId && isAuthenticated,
-  });
-
-  const { data: existingSubmission } = useQuery({
-    queryKey: ['submission', currentUser?.id, assignmentId],
-    queryFn: async () => {
-      if (!currentUser) return null;
-      const submissions = await api.submissions.getAll(currentUser.id, assignmentId);
-      return Array.isArray(submissions) && submissions.length > 0 ? submissions[0] : null;
-    },
-    enabled: !!currentUser && isAuthenticated,
-  });
+  const createMutation = useCreateSubmission();
+  const updateMutation = useUpdateSubmission();
 
   // Populate content when existing submission loads
   useEffect(() => {
@@ -48,36 +37,6 @@ function AssignmentPage() {
       setContent(submissionContent);
     }
   }, [existingSubmission]);
-
-  const createMutation = useMutation({
-    mutationFn: (data: SubmissionCreateIn) => api.submissions.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['submission', currentUser?.id, assignmentId] });
-      queryClient.invalidateQueries({ queryKey: ['submissions'] });
-      setContent('');
-      alert('Submission created successfully!');
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: SubmissionUpdateIn }) =>
-      api.submissions.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['submission', currentUser?.id, assignmentId] });
-      queryClient.invalidateQueries({ queryKey: ['submissions'] });
-      alert('Submission updated successfully!');
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.submissions.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['submission', currentUser?.id, assignmentId] });
-      queryClient.invalidateQueries({ queryKey: ['submissions'] });
-      setContent('');
-      alert('Submission deleted successfully!');
-    },
-  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +52,14 @@ function AssignmentPage() {
         walkthroughText: submissionType === 'SOLUTION_WALKTHROUGH' ? content : undefined,
         codeExplanation: submissionType === 'REVERSE_PROGRAMMING' ? content : undefined,
       };
-      updateMutation.mutate({ id: existingSubmission.id, data: updateData });
+      updateMutation.mutate(
+        { id: existingSubmission.id, data: updateData },
+        {
+          onSuccess: () => {
+            alert('Submission updated successfully!');
+          },
+        }
+      );
     } else {
       const createData: SubmissionCreateIn = {
         type: submissionType,
@@ -103,13 +69,12 @@ function AssignmentPage() {
         walkthroughText: submissionType === 'SOLUTION_WALKTHROUGH' ? content : undefined,
         codeExplanation: submissionType === 'REVERSE_PROGRAMMING' ? content : undefined,
       };
-      createMutation.mutate(createData);
-    }
-  };
-
-  const handleDelete = () => {
-    if (existingSubmission && confirm('Are you sure you want to delete this submission?')) {
-      deleteMutation.mutate(existingSubmission.id);
+      createMutation.mutate(createData, {
+        onSuccess: () => {
+          // Don't clear content - let the query refetch and show existing submission
+          alert('Submission created successfully!');
+        },
+      });
     }
   };
 
@@ -160,7 +125,10 @@ function AssignmentPage() {
           {existingSubmission && (
             <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-400 rounded">
               <p className="text-sm font-medium" style={{ color: COLORS.primary }}>
-                You have already submitted this assignment. You can update or delete your submission below.
+                You have already submitted this assignment. You can update your submission below.
+              </p>
+              <p className="text-xs mt-1" style={{ color: COLORS.primary, opacity: OPACITY.medium }}>
+                To delete this submission, visit the Submissions page.
               </p>
             </div>
           )}
@@ -207,17 +175,6 @@ function AssignmentPage() {
                     ? 'Update Submission'
                     : 'Submit'}
               </button>
-
-              {existingSubmission && (
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={deleteMutation.isPending}
-                  className="px-6 py-2 border-2 border-red-600 text-red-600 rounded font-medium hover:bg-red-600 hover:text-white transition-colors disabled:opacity-50"
-                >
-                  {deleteMutation.isPending ? 'Deleting...' : 'Delete Submission'}
-                </button>
-              )}
             </div>
           </form>
         </div>
