@@ -28,7 +28,7 @@ export function useApi() {
                   token = await getAccessTokenSilently({
                     authorizationParams: {
                       audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-                      scope: 'openid profile email access:api',
+                      scope: 'openid profile email access:api offline_access',
                     },
                   });
                 } catch (error) {
