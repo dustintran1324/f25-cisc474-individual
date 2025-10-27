@@ -44,7 +44,7 @@ export function useSubmission(id: string) {
 
 /**
  * Fetch a submission for a specific user and assignment
- * Returns the first (most recent) submission if multiple exist
+ * Backend returns a single submission object (not array) when both params provided
  */
 export function useSubmissionByUserAndAssignment(userId: string | undefined, assignmentId: string) {
   const { isAuthenticated } = useAuth0();
@@ -54,8 +54,13 @@ export function useSubmissionByUserAndAssignment(userId: string | undefined, ass
     queryKey: ['submissions', 'user', userId, 'assignment', assignmentId],
     queryFn: async (): Promise<SubmissionOut | null> => {
       if (!userId) return null;
-      const submissions = await api.submissions.getAll(userId, assignmentId);
-      return Array.isArray(submissions) && submissions.length > 0 ? (submissions[0] ?? null) : null;
+      const result = await api.submissions.getAll(userId, assignmentId);
+      // Backend returns single object when both userId and assignmentId provided
+      if (result && !Array.isArray(result)) {
+        return result as SubmissionOut;
+      }
+      // Fallback: if array returned, take first element
+      return Array.isArray(result) && result.length > 0 ? (result[0] ?? null) : null;
     },
     enabled: !!userId && !!assignmentId && isAuthenticated,
   });
@@ -88,6 +93,22 @@ export function useUpdateSubmission() {
     mutationFn: ({ id, data }: { id: string; data: SubmissionUpdateIn }) =>
       api.submissions.update(id, data),
     onSuccess: (updatedSubmission) => {
+      // Invalidate all submissions queries to refetch
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
+    },
+  });
+}
+
+/**
+ * Submit a submission (change status from DRAFT to SUBMITTED)
+ */
+export function useSubmitSubmission() {
+  const { api } = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => api.submissions.submit(id),
+    onSuccess: () => {
       // Invalidate all submissions queries to refetch
       queryClient.invalidateQueries({ queryKey: ['submissions'] });
     },

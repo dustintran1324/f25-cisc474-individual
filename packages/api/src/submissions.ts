@@ -35,6 +35,35 @@ export const SubmissionOut = z.object({
   updatedAt: z.coerce.date(),
   userId: z.string(),
   assignmentId: z.string(),
+  // Nested objects returned by backend
+  assignment: z.object({
+    id: z.string(),
+    title: z.string(),
+    maxPoints: z.number(),
+    dueDate: z.coerce.date(),
+    courseId: z.string().optional(),
+    course: z.object({
+      id: z.string(),
+      code: z.string(),
+      title: z.string(),
+    }).optional(),
+  }).optional(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+  }).optional(),
+  feedback: z.array(z.object({
+    id: z.string(),
+    points: z.number().nullable(),
+    comments: z.string().nullable(),
+    isPublished: z.boolean(),
+    createdAt: z.coerce.date(),
+    grader: z.object({
+      id: z.string(),
+      name: z.string(),
+    }).optional(),
+  })).optional(),
 });
 
 export type SubmissionOut = z.infer<typeof SubmissionOut>;

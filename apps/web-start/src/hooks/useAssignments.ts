@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useApi } from './useApi';
+import type { AssignmentCreateIn, AssignmentUpdateIn } from '@repo/api';
 
 export function useAssignments(courseId?: string) {
   const { isAuthenticated } = useAuth0();
@@ -51,4 +52,41 @@ export function useUpcomingAssignments(limit: number = 4) {
     data: upcomingAssignments,
     ...rest,
   };
+}
+
+export function useCreateAssignment() {
+  const { api } = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: AssignmentCreateIn) => api.assignments.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assignments'] });
+    },
+  });
+}
+
+export function useUpdateAssignment() {
+  const { api } = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AssignmentUpdateIn }) =>
+      api.assignments.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assignments'] });
+    },
+  });
+}
+
+export function useDeleteAssignment() {
+  const { api } = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => api.assignments.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assignments'] });
+    },
+  });
 }
