@@ -22,7 +22,7 @@ export const getRouter = () => {
           authorizationParams={{
             redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
             audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-            scope: 'openid profile email access:api',
+            scope: 'openid profile email access:api offline_access',
           }}
           cacheLocation="localstorage"
           useRefreshTokens={true}
