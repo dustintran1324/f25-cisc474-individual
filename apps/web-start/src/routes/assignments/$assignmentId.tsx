@@ -7,7 +7,8 @@ import { useCurrentUser } from '../../hooks/useCurrentUser';
 import {
   useSubmissionByUserAndAssignment,
   useCreateSubmission,
-  useUpdateSubmission
+  useUpdateSubmission,
+  useSubmitSubmission
 } from '../../hooks/useSubmissions';
 import type { SubmissionCreateIn, SubmissionUpdateIn } from '@repo/api';
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/assignments/$assignmentId')({
 function AssignmentPage() {
   const { assignmentId } = Route.useParams();
   const [content, setContent] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   const { data: currentUser } = useCurrentUser();
   const { data: assignment, isLoading: assignmentLoading, error: assignmentError } = useAssignment(assignmentId);
@@ -25,8 +27,12 @@ function AssignmentPage() {
 
   const createMutation = useCreateSubmission();
   const updateMutation = useUpdateSubmission();
+  const submitMutation = useSubmitSubmission();
 
-  // Populate content when existing submission loads
+  const submissionStatus = existingSubmission?.status || 'NOT_STARTED';
+  const isSubmitted = submissionStatus === 'SUBMITTED' || submissionStatus === 'GRADED';
+  const isReadOnly = isSubmitted && !isEditing;
+
   useEffect(() => {
     if (existingSubmission) {
       const submissionContent =
@@ -38,29 +44,36 @@ function AssignmentPage() {
     }
   }, [existingSubmission]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!assignment || !assignment.allowedTypes[0] || !currentUser) return;
 
-    // Use the first allowed type from the assignment (instructor sets this)
     const submissionType = assignment.allowedTypes[0];
 
     if (existingSubmission) {
+      const confirmed = confirm('Update your submission?');
+      if (!confirmed) return;
+
       const updateData: SubmissionUpdateIn = {
         codeContent: submissionType === 'TRADITIONAL_CODE' ? content : undefined,
         walkthroughText: submissionType === 'SOLUTION_WALKTHROUGH' ? content : undefined,
         codeExplanation: submissionType === 'REVERSE_PROGRAMMING' ? content : undefined,
+        status: 'SUBMITTED',
       };
       updateMutation.mutate(
         { id: existingSubmission.id, data: updateData },
         {
           onSuccess: () => {
+            setIsEditing(false);
             alert('Submission updated successfully!');
           },
         }
       );
     } else {
+      const confirmed = confirm('Submit this assignment?');
+      if (!confirmed) return;
+
       const createData: SubmissionCreateIn = {
         type: submissionType,
         userId: currentUser.id,
@@ -69,10 +82,14 @@ function AssignmentPage() {
         walkthroughText: submissionType === 'SOLUTION_WALKTHROUGH' ? content : undefined,
         codeExplanation: submissionType === 'REVERSE_PROGRAMMING' ? content : undefined,
       };
+
       createMutation.mutate(createData, {
-        onSuccess: () => {
-          // Don't clear content - let the query refetch and show existing submission
-          alert('Submission created successfully!');
+        onSuccess: (newSubmission) => {
+          submitMutation.mutate(newSubmission.id, {
+            onSuccess: () => {
+              alert('Assignment submitted successfully!');
+            },
+          });
         },
       });
     }
@@ -119,7 +136,23 @@ function AssignmentPage() {
     );
   }
 
-  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isSaving = createMutation.isPending || updateMutation.isPending || submitMutation.isPending;
+
+  const getStatusBadge = () => {
+    switch (submissionStatus) {
+      case 'NOT_STARTED':
+        return { bgColor: COLORS.gray[100], textColor: COLORS.gray[800], label: 'Not Submitted' };
+      case 'SUBMITTED':
+      case 'DRAFT':
+        return { bgColor: COLORS.medieval.greenLight, textColor: COLORS.medieval.green, label: 'Submitted' };
+      case 'GRADED':
+        return { bgColor: '#dbeafe', textColor: '#1e40af', label: 'Graded' };
+      default:
+        return { bgColor: COLORS.gray[100], textColor: COLORS.gray[800], label: submissionStatus };
+    }
+  };
+
+  const statusBadge = getStatusBadge();
 
   return (
     <div className="min-h-screen bg-white">
@@ -131,7 +164,7 @@ function AssignmentPage() {
           <p className="mb-4" style={{ color: COLORS.primary, opacity: OPACITY.medium }}>{assignment.description}</p>
 
           <h3 className="text-lg font-semibold mb-2" style={{ color: COLORS.primary }}>Instructions</h3>
-          <p className="whitespace-pre-wrap" style={{ color: COLORS.primary, opacity: OPACITY.medium }}>{assignment.instructions}</p>
+          <p className="whitespace-pre-wrap" style={{ color: COLORS.primary, opacity: OPACITY.medium}}>{assignment.instructions}</p>
 
           <div className="mt-4 flex gap-2">
             {assignment.allowedTypes.map((type) => (
@@ -143,18 +176,51 @@ function AssignmentPage() {
         </div>
 
         <div className="p-6 border-4 border-black rounded-lg">
-          <h2 className="text-xl font-bold mb-4" style={{ color: COLORS.primary }}>
-            {existingSubmission ? 'Update Submission' : 'Submit Assignment'}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold" style={{ color: COLORS.primary }}>
+              Your Submission
+            </h2>
+            <span
+              className="px-3 py-1 rounded-full text-sm font-medium"
+              style={{ backgroundColor: statusBadge.bgColor, color: statusBadge.textColor }}
+            >
+              {statusBadge.label}
+            </span>
+          </div>
 
-          {existingSubmission && (
-            <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-400 rounded">
-              <p className="text-sm font-medium" style={{ color: COLORS.primary }}>
-                You have already submitted this assignment. You can update your submission below.
+          {isSubmitted && existingSubmission?.submittedAt && !isEditing && (
+            <div
+              className="mb-4 p-3 rounded"
+              style={{ backgroundColor: COLORS.medieval.greenLight, borderWidth: '2px', borderStyle: 'solid', borderColor: COLORS.medieval.green }}
+            >
+              <p className="text-sm font-medium" style={{ color: COLORS.medieval.green }}>
+                Submitted on {new Date(existingSubmission.submittedAt).toLocaleString()}
               </p>
-              <p className="text-xs mt-1" style={{ color: COLORS.primary, opacity: OPACITY.medium }}>
-                To delete this submission, visit the Submissions page.
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-xs underline hover:no-underline mt-1"
+                style={{ color: COLORS.medieval.green }}
+              >
+                Edit your submission
+              </button>
+            </div>
+          )}
+
+          {isEditing && (
+            <div
+              className="mb-4 p-3 rounded"
+              style={{ backgroundColor: COLORS.medieval.yellowLight, borderWidth: '2px', borderStyle: 'solid', borderColor: COLORS.medieval.yellow }}
+            >
+              <p className="text-sm font-medium" style={{ color: COLORS.medieval.yellowDark }}>
+                Editing Mode
               </p>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="text-xs underline hover:no-underline mt-1"
+                style={{ color: COLORS.medieval.yellowDark }}
+              >
+                Cancel editing
+              </button>
             </div>
           )}
 
@@ -168,39 +234,58 @@ function AssignmentPage() {
                   {assignment?.allowedTypes[0]?.replace(/_/g, ' ') || 'N/A'}
                 </span>
               </div>
-              <p className="text-xs mt-1" style={{ color: COLORS.primary, opacity: OPACITY.low }}>
-                Submission type is set by your instructor
-              </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: COLORS.primary }}>
-                Your Submission
+                Your Response
               </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={12}
-                className="w-full px-3 py-2 border-2 border-black rounded font-mono"
+                readOnly={isReadOnly}
+                className={`w-full px-3 py-2 border-2 border-black rounded font-mono ${
+                  isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''
+                }`}
                 style={{ color: COLORS.primary }}
                 placeholder="Enter your submission content here..."
                 required
               />
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-xs text-gray-500">
+                  {content.length} characters
+                </p>
+                {!isReadOnly && isSaving && (
+                  <span className="text-xs text-gray-500">Saving...</span>
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-2">
+            {!isReadOnly && (
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-black text-white rounded font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
+                disabled={isSaving || !content.trim()}
+                className="w-full px-6 py-3 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: isSaving || !content.trim() ? COLORS.gray[400] : COLORS.medieval.green }}
+                onMouseEnter={(e) => {
+                  if (!isSaving && content.trim()) {
+                    e.currentTarget.style.backgroundColor = COLORS.medieval.greenHover;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSaving && content.trim()) {
+                    e.currentTarget.style.backgroundColor = COLORS.medieval.green;
+                  }
+                }}
               >
-                {isSubmitting
+                {isSaving
                   ? 'Saving...'
                   : existingSubmission
                     ? 'Update Submission'
-                    : 'Submit'}
+                    : 'Submit Assignment'}
               </button>
-            </div>
+            )}
           </form>
         </div>
       </div>

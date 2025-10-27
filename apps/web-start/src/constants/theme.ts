@@ -7,6 +7,16 @@ export const COLORS = {
     100: '#f3f4f6',
     400: '#9ca3af',
     700: '#374151',
+    800: '#1f2937',
+  },
+  medieval: {
+    green: '#3B5B29',
+    greenLight: '#e8f2e5',
+    greenHover: '#2d4620',
+    yellow: '#F6B93B',
+    yellowLight: '#fef3e2',
+    yellowDark: '#d97706',
+    red: '#A50034',
   },
   status: {
     unread: '#ff4444',

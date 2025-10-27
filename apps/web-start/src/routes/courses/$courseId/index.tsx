@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { PageHeader } from '../../../components/PageHeader/PageHeader';
+import { ManageAssignmentsModal } from '../../../components/ManageAssignmentsModal/ManageAssignmentsModal';
 import { COLORS, OPACITY } from '../../../constants/theme';
 import { useApi } from '../../../hooks/useApi';
 
@@ -15,6 +16,7 @@ function CoursePage() {
   const { isAuthenticated } = useAuth0();
   const { api } = useApi();
   const [activeTab, setActiveTab] = useState<'assignments' | 'syllabus' | 'modules' | 'grades'>('assignments');
+  const [isManageAssignmentsOpen, setIsManageAssignmentsOpen] = useState(false);
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ['course', courseId],
@@ -80,6 +82,13 @@ function CoursePage() {
         <div>
           {activeTab === 'assignments' && (
             <div className="space-y-4">
+              <button
+                onClick={() => setIsManageAssignmentsOpen(true)}
+                className="w-full px-4 py-3 bg-black text-white rounded-lg hover:opacity-80 transition-opacity font-medium"
+              >
+                Manage Assignments
+              </button>
+
               {assignmentsLoading ? (
                 <p style={{ color: COLORS.primary }}>Loading assignments...</p>
               ) : assignments.length === 0 ? (
@@ -156,6 +165,12 @@ function CoursePage() {
           )}
         </div>
       </div>
+
+      <ManageAssignmentsModal
+        isOpen={isManageAssignmentsOpen}
+        onClose={() => setIsManageAssignmentsOpen(false)}
+        courseId={courseId}
+      />
     </div>
   )
 }

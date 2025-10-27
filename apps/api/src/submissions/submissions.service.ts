@@ -15,6 +15,7 @@ export class SubmissionsService {
             title: true,
             maxPoints: true,
             dueDate: true,
+            courseId: true,
           },
         },
         user: {
@@ -104,6 +105,15 @@ export class SubmissionsService {
     return this.prisma.submission.findMany({
       where: { assignmentId },
       include: {
+        assignment: {
+          select: {
+            id: true,
+            title: true,
+            maxPoints: true,
+            dueDate: true,
+            courseId: true,
+          },
+        },
         user: {
           select: {
             id: true,

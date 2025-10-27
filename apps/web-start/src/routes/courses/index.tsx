@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { CoursesList } from '../../components/CoursesList/CoursesList';
+import { ManageCoursesModal } from '../../components/ManageCoursesModal/ManageCoursesModal';
 import { COLORS } from '../../constants/theme';
 
 export const Route = createFileRoute('/courses/')({
@@ -20,6 +21,8 @@ function LoadingFallback() {
 }
 
 function CoursesPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -31,6 +34,7 @@ function CoursesPage() {
 
         <div className="mt-12 text-center">
           <button
+            onClick={() => setIsModalOpen(true)}
             className="border-2 border-black px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2 mx-auto"
             style={{ color: COLORS.primary }}
           >
@@ -48,6 +52,11 @@ function CoursesPage() {
           </button>
         </div>
       </div>
+
+      <ManageCoursesModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

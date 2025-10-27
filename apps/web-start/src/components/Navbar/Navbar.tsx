@@ -78,16 +78,6 @@ export function Navbar() {
                 Courses
               </Link>
               <Link
-                to="/notifications"
-                className="relative text-gray-700 transition-all duration-200 before:content-[attr(data-text)] before:font-semibold before:invisible before:block before:h-0 before:overflow-hidden hover:font-semibold after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-gray-700 after:transition-all after:duration-200 hover:after:w-full"
-                activeProps={{
-                  className:
-                    'font-semibold after:w-full',
-                }}
-              >
-                Notifications
-              </Link>
-              <Link
                 to="/submissions"
                 className="relative text-gray-700 transition-all duration-200 before:content-[attr(data-text)] before:font-semibold before:invisible before:block before:h-0 before:overflow-hidden hover:font-semibold after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-gray-700 after:transition-all after:duration-200 hover:after:w-full"
                 activeProps={{
@@ -136,13 +126,6 @@ export function Navbar() {
                   onClick={() => setIsOpen(false)}
                 >
                   Courses
-                </Link>
-                <Link
-                  to="/notifications"
-                  className="relative text-gray-700 transition-all duration-200 hover:font-semibold"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Notifications
                 </Link>
                 <Link
                   to="/submissions"
